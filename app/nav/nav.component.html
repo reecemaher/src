@@ -1,0 +1,39 @@
+
+
+  <hr>
+
+<div id="header">
+    <div *ngIf="auth.user$ | async; then authenticated">
+        <!-- template will replace this div -->
+      </div>
+
+      <div id="navBar">
+
+          <a class="button is-info" routerLink="/secret">
+            Manager Page
+          </a>
+        
+          <a  class="button is-info" routerLink="/calendar">
+           My Calendar
+          </a>
+        
+          <a class="button is-success" routerLink="/content">
+            Department Calendar
+          </a>
+      
+          <a class="button is-success" routerLink="/holidays">
+            Holidays
+          </a>
+        
+      </div>
+</div>
+<hr/>
+
+
+
+<ng-template #authenticated>
+    <div *ngIf="auth.user$ | async as user">
+      Howdy, {{ user.displayName }}
+      <button (click)="auth.signOut()" >Logout</button>
+    </div>
+</ng-template>

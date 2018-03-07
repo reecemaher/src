@@ -1,0 +1,115 @@
+
+<app-nav></app-nav>
+
+
+<ul *ngFor="let col of collegues$ | async">
+ <li> {{ col.email }} </li>
+</ul>
+
+<div class="row text-center">
+  <div class="col-md-4">
+    <div class="btn-group">
+      <div
+        class="btn btn-primary"
+        mwlCalendarPreviousView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false">
+        Previous
+      </div>
+      <div
+        class="btn btn-outline-secondary"
+        mwlCalendarToday
+        [(viewDate)]="viewDate">
+        Today
+      </div>
+      <div
+        class="btn btn-primary"
+        mwlCalendarNextView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false">
+        Next
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
+  </div>
+  <div class="col-md-4">
+    <div class="btn-group">
+      <div
+        class="btn btn-primary"
+        (click)="view = 'month'"
+        [class.active]="view === 'month'">
+        Month
+      </div>
+      <div
+        class="btn btn-primary"
+        (click)="view = 'week'"
+        [class.active]="view === 'week'">
+        Week
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="post$ | async as post">
+
+
+  <h1>{{ post.department.shopfloor.Monday.name }}</h1>
+  <h1>{{ post.department.shopfloor.Monday.Day}}</h1>
+  <h1>{{ post.department.shopfloor.Monday.hours }}</h1>
+  <p>{{ post.title }}</p>
+  <p>{{ post.content }}</p>
+  
+
+    <button class="button is-danger" 
+            (click)="deletePost()"
+            *ngIf="auth.canDelete(user)">
+
+    Delete Time
+  </button>
+
+  <button class="button is-warning" 
+          (click)="editPost()"
+          *ngIf="auth.canEdit(user)">
+  
+    Edit Time
+  </button>
+
+<hr/>
+<div>
+  
+<div>
+  <h1> reece</h1>
+<mwl-calendar-week-view
+  [viewDate]="viewDate"
+  [events]="events"
+  (dayClicked)="clickedDate = $event.day.date"
+  (highlightDay)="toggleDayHighlight($event.event, true)">
+</mwl-calendar-week-view>
+</div>
+
+  <div>
+  <h1> Pat</h1>
+<mwl-calendar-week-view
+  [viewDate]="viewDate"
+  [events]="patHours"
+  (dayClicked)="clickedDate = $event.day.date"
+  (highlightDay)="toggleDayHighlight($event.event, true)">
+</mwl-calendar-week-view>
+</div>
+
+  <div>
+  <h1> Joe</h1>
+<mwl-calendar-week-view
+  [viewDate]="viewDate"
+  [events]="joeHours"
+  (dayClicked)="clickedDate = $event.day.date"
+  (highlightDay)="toggleDayHighlight($event.event, true)">
+</mwl-calendar-week-view>
+</div>
+</div>
+
+</div>

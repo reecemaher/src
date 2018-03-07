@@ -1,0 +1,60 @@
+<app-nav></app-nav>
+
+<div *ngFor="let roster of rosters | async">
+  {{ roster.start }}
+</div>
+<div class="row text-center">
+    <div class="col-md-4">
+      <div class="btn-group">
+        <div
+          class="button"
+          mwlCalendarPreviousView
+          [view]="view"
+          [(viewDate)]="viewDate"
+          (viewDateChange)="activeDayIsOpen = false">
+          Previous
+        </div>
+        <div
+          class="button"
+          mwlCalendarToday
+          [(viewDate)]="viewDate">
+          Today
+        </div>
+        <div
+          class="button"
+          mwlCalendarNextView
+          [view]="view"
+          [(viewDate)]="viewDate"
+          (viewDateChange)="activeDayIsOpen = false">
+          Next
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
+    </div>
+</div>
+<!-- <angular2-fullcalendar [options]="calendarShopfloor"></angular2-fullcalendar> -->
+<hr/>
+<div class="alert alert-info">
+    Click on a day.
+  <div *ngIf="clickedDate">You clicked on this day: {{ clickedDate | date:'medium' }}
+    <button class="button" (click)="dayOffRequest(clickedDate)">Book this day</button>
+    <button class="button" (click)="weekOffRequest(clickedDate)">Book this week</button>
+  </div>
+</div>
+  <hr/>
+
+  
+  <div id="calendarConatainer">
+  <mwl-calendar-month-view
+      [viewDate]="viewDate"
+      [refresh]="refresh"
+      [events]="holidays"
+      (dayClicked)="clickedDate = $event.day.date"
+      [activeDayIsOpen]="activeDayIsOpen"
+      (dayClicked)="dayClicked($event.day)"
+      (eventClicked)="handleEvent('Clicked', $event.event)"
+      (eventTimesChanged)="eventTimesChanged($event)">
+    </mwl-calendar-month-view>
+</div>

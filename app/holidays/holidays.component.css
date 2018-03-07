@@ -1,0 +1,13 @@
+@import "../../../node_modules/fullcalendar/dist/fullcalendar.min.css";
+
+.cal-day-selected,
+.cal-day-selected:hover{
+    background-color: crimson !important;
+}
+
+.cal-day-booked,
+.cal-day-booked:hover{
+    background-color:forestgreen !important;
+}
+
+
