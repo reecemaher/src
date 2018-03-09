@@ -1,8 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Observable'
 
-import {  CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import {  CalendarEvent,CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  addDays,
+  endOfMonth,
+  isSameDay,
+  isSameMonth,
+  addHours,
+  startOfISOWeek,
+  isFuture,
+  isToday
+} from 'date-fns';
 import { Subject } from 'rxjs/Subject';
 import { colors } from '../calendar/colors';
 import { User } from '../core/user';
@@ -15,21 +28,22 @@ import { ViewChild } from '@angular/core/src/metadata/di';
 @Component({
   selector: 'super-secret',
   templateUrl: './super-secret.component.html',
-  styleUrls: ['./super-secret.component.css']
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./super-secret.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 
 
 export class SuperSecretComponent implements OnInit {
-  //@ViewChild('myCal') calendar : CalendarComponent;
+  selected;
 
   private calCol: AngularFirestoreCollection<any>;
   cal: Observable<any[]>;
   private usersCollection: AngularFirestoreCollection<User>;
   users: Observable<User[]>;
 
-  private departmentCol: AngularFirestoreDocument<any>;
-  departmentPbs: Observable<any>;
-  private calendarShopfloor: Object;
+  private departmentCal: AngularFirestoreCollection<any>;
+  //departmentPbs: Observable<any>;
 
   
   
@@ -42,97 +56,146 @@ export class SuperSecretComponent implements OnInit {
    ];
 
 
-   rostersView = {};
+   rostersView :Object[] = [];
 
   constructor(private afs: AngularFirestore,private roster: RostersService) {
-     this.calCol = this.afs.collection<any>('fullCalendar')
 
       
-    this.cal = this.calCol.snapshotChanges().map(actions => {
-       return actions.map(a => {
-         const data = a.payload.doc.data();
-         const id = a.payload.doc.id;
-        return { id, data};
-      });
-     });
+    // this.cal = this.calCol.snapshotChanges().map(actions => {
+    //    return actions.map(a => {
+    //      const data = a.payload.doc.data();
+    //      const id = a.payload.doc.id;
+    //     return { id, data};
+    //   });
+    //  });
 
     this.usersCollection = this.afs.collection<User>('users');
     this.users = this.usersCollection.valueChanges();
 
-    this.departmentCol = this.afs.doc<any>('departments/MDf84sbC5xbG7cO8xhV1');
-    this.departmentPbs = this.departmentCol.valueChanges();
-
-
-    //this.rosterView.push(this.roster);
-    
    }
 
    
 
   ngOnInit() {
-    this.roster.getRoster( this.roster.rosterView);
-    this.rostersView = this.roster.calendarShopfloor;
+    
   }
 
-  filerByDepartment(department: string){
-    console.log('D =' + department);
+  refresh: Subject<any> = new Subject();
+  actions: CalendarEventAction[] = [
+    {
+      label: '<i class="fa fa-fw fa-pencil"></i>',
+      onClick: ({ event }: { event: CalendarEvent }): void => {
+        //console.log('edited');
+      }
+    },
+    {
+      label: '<i class="fa fa-fw fa-times"></i>',
+      onClick: ({ event }: { event: CalendarEvent }): void => {
+        this.rostersView = this.rostersView.filter(iEvent => iEvent !== event);
+      // this.handleEvent('Deleted', event);
+      //this.requestCollection.({start:day, title: 'booked', color: colors.red});
+      }
+    }
+  ];
+
+  filerByDepartment(department: string,rosterView,actions,refresh){
     this.usersCollection = this.afs.collection<User>('users', ref => {
-      return ref.where('Department','==',department);
+      return ref.where('department','==',department);
     });
     this.users = this.usersCollection.valueChanges();
+
+    this.departmentCal = this.afs.collection<any>('rosters', ref =>{
+      return ref.where('department', '==' ,department);
+    });
+
+    this.departmentCal.ref.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        //doc.data()['actions'] = actions;
+        rosterView.push(doc.data());
+        //console.log(holidays);
+      });
+      for(var i= rosterView.length -1; i >= 0 ;i--){
+        if(rosterView[i].department != department){
+          rosterView.splice(i,1);
+        }
+      }
+      for(var i =0; i < rosterView.length; i++){
+        rosterView[i]['actions'] = actions; 
+        rosterView[i]['draggable'] = true;
+      }
+      refresh.next();
+  });
+    //this.loadhours(this.rostersView,this.refresh,this.actions);
   }
 
-  add(){
-   // this.calCol.add();
-   //this.calendar.fullCalendar('refetchEvents');
-
-   
-  }
-
-  showCalendar(employeeCalendar: string){
-    console.log(employeeCalendar + "'s" + 'Calendar');
-  }
 
   reset(){
     this.usersCollection = this.afs.collection<User>('users');
     this.users = this.usersCollection.valueChanges();
+    this.selected ='';
   }
 
-
-  user(){
-    this.usersCollection = this.afs.collection<User>('users', ref => {
-      return ref.where('displayName','==','reece');
-    });
-    this.users = this.usersCollection.valueChanges();
+  loadhours(rosterView,refresh,actions){ 
+    return  this.departmentCal.ref.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        //doc.data()['actions'] = actions;
+        rosterView.push(doc.data());
+        //console.log(holidays);
+      });
+      for(var i= rosterView.length -1; i >= 0 ;i--){
+        if(rosterView[i].department != department){
+          rosterView.splice(i,1);
+        }
+      }
+      for(var i =0; i < rosterView.length; i++){
+        rosterView[i]['actions'] = actions; 
+        rosterView[i]['draggable'] = true;
+      }
+      refresh.next();
+  });
   }
-  
-   edit = rosters.Liz["start"] = new Date('February 15,2018');
-     
 
-   //events:any = this.rosterView;
+  activeDayIsOpen: boolean = true;
+    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+      if (isSameMonth(date, this.viewDate)) {
+        if (
+          (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
+          events.length === 0
+        ) {
+          this.activeDayIsOpen = false;
+        } else {
+          this.activeDayIsOpen = true;
+          this.viewDate = date;
+        }
+      }
+    }
 
-  // refresh: Subject<any> = new Subject();
+    handleEvent(){
 
-  // eventTimesChanged({
-  //   event,
-  //   newStart,
-  //   newEnd
-  // }: CalendarEventTimesChangedEvent): void {
-  //   event.start = newStart;
-  //   event.end = newEnd;
-  //   //this.handleEvent('Dropped or resized', event);
-  //   this.refresh.next();
+    }
+
+    eventTimesChanged({event,newStart,newEnd,}: CalendarEventTimesChangedEvent): void {
+      event.start = newStart;
+      event.end = newEnd;
+      //this.tempDocument = this.afs.doc('holidays/');
+      
+      //this.tempDocument.update({start:newStart,title: 'booked', color: colors.yellow});
+
+      //this.requestCollection.add({start:newStart, title: 'booked', color: colors.red});
+      //this.handleEvent('Dropped or resized', event);
+      //console.log(this.userId);
+      this.refresh.next();
+    }
+
+
+  // user(){
+  //   this.usersCollection = this.afs.collection<User>('users', ref => {
+  //     return ref.where('displayName','==','reece');
+  //   });
+  //   this.users = this.usersCollection.valueChanges();
   // }
-
-  // calendarShopfloor: Object ={
-  //   //height: 'parent',
-  //   fixedWeekCount: false,
-  //   defaultDate: '2018-02-14',
-  //   editable: true,
-  //   eventLimit: false,
-  //   events: this.rosterView
-    
-  //  }
+  
+   
   
 
 }
