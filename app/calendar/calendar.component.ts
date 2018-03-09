@@ -35,7 +35,6 @@ export class MyCalendarComponent implements OnInit {
   rosterEvent: Observable<Roster>;
   rosters$: Observable<Roster[]>;
   snapshot: any;
-  user;
 
   rosters:Object[] = [] ;
 
@@ -47,6 +46,9 @@ export class MyCalendarComponent implements OnInit {
     this.auth.user$.subscribe(user=>{
       this.myUid = user.uid;
       //this.userDisplayName = user.displayName;
+      console.log(user.uid);
+      this.loadRoster(this.rosters,this.refresh,this.myUid);
+    this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
     })
     }
 
@@ -59,13 +61,11 @@ export class MyCalendarComponent implements OnInit {
       arr.map(snap => snap.payload.doc.data())
     });
     
-    this.loadRoster(this.rosters,this.refresh,this.myUid);
-    this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
+    
 
 
     }
-  datas = JSON.stringify(this.rosterEvent);
-  //newD = JSON.parse(this.datas);
+    
   view: string = 'month';
   viewDate: Date = new Date();
 
@@ -79,60 +79,14 @@ export class MyCalendarComponent implements OnInit {
     {
       label: '<i class="fa fa-fw fa-times"></i>',
       onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.events = this.events.filter(iEvent => iEvent !== event);
+        this.rosters = this.rosters.filter(iEvent => iEvent !== event);
        // this.handleEvent('Deleted', event);
       }
     }
   ];
 
   refresh: Subject<any> = new Subject();
-/*
-  testEvent: CalendarEvent[] = [
-    {
-        title: this.rosterEvent.subscribe,
-        start: new Date(),
-        color: colors.red
-    }
-     
-  ];*/
 
-
-
-
-
-
-
-
-  events: CalendarEvent[] = [
-  {
-    title: '14.00 - 22.00',
-    start: new Date(),
-    color: colors.yellow
-  },   
-  {
-    title: '10.00 - 18.00',
-    color: colors.red,
-    start: new Date(),
-    actions: this.actions,
-    draggable: true
-  },
-    {
-      title: '14.00-22.00',
-      color: colors.red,
-      start: new Date(),
-      actions:this.actions,
-      draggable: true
-    },
-    {
-     title: '17.00-22.00',
-      color: colors.blue,
-      start: new Date(),
-      actions:this.actions,
-      draggable: true
-    }
-  ];
-
-  test = this.events;
 
   eventTimesChanged({
     event,
@@ -174,11 +128,11 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
           //doc.data()['actions'] = actions;
 
           rosters.push(doc.data());
-          console.log(rosters);
+         // console.log(rosters);
         });
 
         for(var i = rosters.length -1; i >= 0 ; i--){
-          console.log(rosters[i].uid);
+          //console.log(rosters[i].uid);
            if(rosters[i].uid != myUid){
              //console.log(rosters[i].uid);
               rosters.splice(i,1);
@@ -197,7 +151,7 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
         //doc.data()['actions'] = actions;
 
         rosters.push(doc.data());
-        console.log(rosters);
+        //console.log(rosters);
       });
 
       for(var i = rosters.length -1; i >= 0 ; i--){
@@ -210,15 +164,6 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
       refresh.next();
     });
   }
-
-addEvent(date: Date): void {
-  this.events.push({
-    start: date,
-    title: 'new',
-    color: colors.yellow
-  });
-  this.refresh.next();
-}
 
   clickedDate: Date;
 }

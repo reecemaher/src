@@ -89,7 +89,7 @@
 -->
 
 <div [ngSwitch]="view">
-  <h1>Reece</h1>
+  <h1 *ngIf="auth.user$ | async as user">{{user.displayName}}</h1>
   <mwl-calendar-month-view
     *ngSwitchCase="'month'"
     [viewDate]="viewDate"
