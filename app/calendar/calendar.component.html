@@ -4,13 +4,13 @@
 </div>
 
 <h3> {{ rosterEvent | async | json }}</h3> -->
-
+<app-nav></app-nav>
 
 <div class="row text-center">
   <div class="col-md-4">
     <div class="btn-group">
       <div
-        class="btn btn-primary"
+        class="button"
         mwlCalendarPreviousView
         [view]="view"
         [(viewDate)]="viewDate"
@@ -18,13 +18,13 @@
         Previous
       </div>
       <div
-        class="btn btn-outline-secondary"
+        class="button"
         mwlCalendarToday
         [(viewDate)]="viewDate">
         Today
       </div>
       <div
-        class="btn btn-primary"
+        class="button"
         mwlCalendarNextView
         [view]="view"
         [(viewDate)]="viewDate"
@@ -39,13 +39,13 @@
   <div class="col-md-4">
     <div class="btn-group">
       <div
-        class="btn btn-primary"
+        class="button"
         (click)="view = 'month'"
         [class.active]="view === 'month'">
         Month
       </div>
       <div
-        class="btn btn-primary"
+        class="button"
         (click)="view = 'week'"
         [class.active]="view === 'week'">
         Week
@@ -60,9 +60,6 @@
   </div>
 </div>
 <br>
-
-<app-nav></app-nav>>
-
 
 
 <hr/>
@@ -96,7 +93,7 @@
   <mwl-calendar-month-view
     *ngSwitchCase="'month'"
     [viewDate]="viewDate"
-    [events]="events"
+    [events]="rosters"
     [refresh]="refresh"
     (dayClicked)="clickedDate = $event.day.date"
     [activeDayIsOpen]="activeDayIsOpen"
@@ -107,7 +104,7 @@
   <mwl-calendar-week-view
     *ngSwitchCase="'week'"
     [viewDate]="viewDate"
-    [events]="events"
+    [events]="rosters"
     [refresh]="refresh"
     (dayClicked)="clickedDate = $event.day.date"
     (eventClicked)="handleEvent('Clicked', $event.event)"
@@ -117,7 +114,7 @@
   <mwl-calendar-day-view
     *ngSwitchCase="'day'"
     [viewDate]="viewDate"
-    [events]="events"
+    [events]="rosters"
     [refresh]="refresh"
     (dayClicked)="clickedDate = $event.day.date"
     (eventClicked)="handleEvent('Clicked', $event.event)"

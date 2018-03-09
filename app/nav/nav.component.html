@@ -33,7 +33,7 @@
 
 <ng-template #authenticated>
     <div *ngIf="auth.user$ | async as user">
-      Howdy, {{ user.displayName }}
+      Howdy, {{ user.displayName }} : {{ user.uid }}
       <button (click)="auth.signOut()" >Logout</button>
     </div>
 </ng-template>

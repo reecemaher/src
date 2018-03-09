@@ -12,7 +12,6 @@ import { NotifyService } from './notify.service';
 export class AuthService {
 
   user$: Observable<User>;
-
   constructor(private afAuth: AngularFireAuth,
               private afs: AngularFirestore,
               private router: Router) {
@@ -20,7 +19,9 @@ export class AuthService {
       this.user$ = this.afAuth.authState
         .switchMap(user => {
           if (user) {
-            return this.afs.doc<User>(`users/${user.uid}`).valueChanges()
+            
+            return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+             
           } else {
             return Observable.of(null)
           }
@@ -91,6 +92,12 @@ export class AuthService {
     }
     return userRef.set(data, { merge: true })
   }
+
+  // private usersId(user){
+  //   const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+  //   return user.id;
+
+  // }
 
 
   ///// Role-based Authorization //////

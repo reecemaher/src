@@ -37,9 +37,17 @@ export class MyCalendarComponent implements OnInit {
   snapshot: any;
   user;
 
+  rosters:Object[] = [] ;
+
+
+  //test user id
+  myUid;
+
   constructor(public auth: AuthService,private afs: AngularFirestore) { 
-    this.auth.user$.subscribe(user => this.user = user);
-    console.log('test' + this.testObj);
+    this.auth.user$.subscribe(user=>{
+      this.myUid = user.uid;
+      //this.userDisplayName = user.displayName;
+    })
     }
 
   ngOnInit(){
@@ -49,16 +57,12 @@ export class MyCalendarComponent implements OnInit {
     .map(arr => {
       console.log(arr)
       arr.map(snap => snap.payload.doc.data())
-    })
-    this.rosterDoc = this.afs.doc('test/test')
-    this.rosterEvent = this.rosterDoc.valueChanges();
+    });
+    
+    this.loadRoster(this.rosters,this.refresh,this.myUid);
+    this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
 
-    console.log(this.datas);
-   let roster = this.rosters$;
 
-   
-   
-   console.log('roster= ' + roster);
     }
   datas = JSON.stringify(this.rosterEvent);
   //newD = JSON.parse(this.datas);
@@ -92,31 +96,12 @@ export class MyCalendarComponent implements OnInit {
      
   ];*/
 
-maxEvent:Boolean = false;
-errs = [].push(this.datas);
-//eventarray = [].push(this.rosterCollection,;
-her = JSON.stringify(this.rosterCollection);
-
-testObj = {
-  title: 'i dids it',
-  start: startOfISOWeek(new Date()),
-  color: colors.yellow,
-  action: this.actions,
-  draggable: true,
-  
-}
-
-workpls = this.rosterCollection;
-
-a={ 
-  color: colors.red,
-  draggable: true,
-  start: '2018-02-07T14:14:00.000Z',
-  title: "15.00 - 22.00" 
-    }
 
 
-testEvent: any =[ this.testObj, this.testObj, this.a];
+
+
+
+
 
   events: CalendarEvent[] = [
   {
@@ -182,8 +167,48 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     }
   }
 
-  dayAvailable(){
 
+  loadRoster(rosters,refresh,myUid){
+      return  this.afs.collection('rosters').ref.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          //doc.data()['actions'] = actions;
+
+          rosters.push(doc.data());
+          console.log(rosters);
+        });
+
+        for(var i = rosters.length -1; i >= 0 ; i--){
+          console.log(rosters[i].uid);
+           if(rosters[i].uid != myUid){
+             //console.log(rosters[i].uid);
+              rosters.splice(i,1);
+           } 
+        }
+       
+
+        refresh.next();
+    });
+    
+  }
+
+  loadUserHolidays(rosters,refresh,myUid){
+    return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        //doc.data()['actions'] = actions;
+
+        rosters.push(doc.data());
+        console.log(rosters);
+      });
+
+      for(var i = rosters.length -1; i >= 0 ; i--){
+         if(rosters[i].uid != myUid || rosters[i].uid == undefined){
+           console.log(rosters[i].uid);
+            rosters.splice(i,1);
+         } 
+      }
+      
+      refresh.next();
+    });
   }
 
 addEvent(date: Date): void {
@@ -197,3 +222,4 @@ addEvent(date: Date): void {
 
   clickedDate: Date;
 }
+
