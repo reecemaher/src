@@ -55,10 +55,6 @@ export class HolidaysComponent implements OnInit {
   dayView: DayViewHour[];
 
   selectedDayViewDate: Date;
-
-  
-
-  bool = false;
   // hours to be diplayed on calendar 
   holidays: Object[] =[];
   userId;
@@ -70,13 +66,14 @@ export class HolidaysComponent implements OnInit {
         this.userId = user.uid;
         this.userDisplayName = user.displayName;
         console.log(user.uid + ' ' +  user.displayName);
+        this.loadhours(this.holidays,this.refresh,this.actions,this.userId);
       })
       
       //this.userId.getIdToken(this.auth.user$);
       this.requestCollection = this.afs.collection<any>('holidays');
 
       this.request = this.requestCollection.valueChanges();
-
+     
 
 
       //this.userId = afAuth.currentUser.uid;
@@ -84,7 +81,8 @@ export class HolidaysComponent implements OnInit {
     }
 
     ngOnInit() {
-      this.loadhours(this.holidays,this.refresh,this.actions);
+      
+
         }
 
     clickedDate: Date;
@@ -177,7 +175,7 @@ export class HolidaysComponent implements OnInit {
       }
     ];
 
-    loadhours(holidays,refresh,actions){ 
+    loadhours(holidays,refresh,actions,userId){ 
       return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
           //doc.data()['actions'] = actions;
@@ -185,10 +183,12 @@ export class HolidaysComponent implements OnInit {
           //console.log(holidays);
         });
         for(var i =0; i < holidays.length; i++){
-          //console.log(holidays[i]);
+          console.log(holidays[i].uid +' '+ userId);
+          if(holidays[i].uid == userId){
           holidays[i]['actions'] = actions; 
           holidays[i]['draggable'] = true;
         }
+      }
         refresh.next();
     });
     }

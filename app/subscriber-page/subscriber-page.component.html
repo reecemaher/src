@@ -2,10 +2,6 @@
 <app-nav></app-nav>
 
 
-<ul *ngFor="let col of collegues$ | async">
- <li> {{ col.email }} </li>
-</ul>
-
 <div class="row text-center">
   <div class="col-md-4">
     <div class="btn-group">
@@ -54,62 +50,40 @@
   </div>
 </div>
 
-<div *ngIf="post$ | async as post">
 
 
-  <!-- <h1>{{ post.department.shopfloor.Monday.name }}</h1>
-  <h1>{{ post.department.shopfloor.Monday.Day}}</h1>
-  <h1>{{ post.department.shopfloor.Monday.hours }}</h1>
-  <p>{{ post.title }}</p>
-  <p>{{ post.content }}</p>
-  
-
-    <button class="button is-danger" 
-            (click)="deletePost()"
-            *ngIf="auth.canDelete(user)">
-
-    Delete Time
-  </button>
-
-  <button class="button is-warning" 
-          (click)="editPost()"
-          *ngIf="auth.canEdit(user)">
-  
-    Edit Time
-  </button> -->
-
-<hr/>
-<div>
-  
-<div>
-  <h1> reece</h1>
-<mwl-calendar-week-view
-  [viewDate]="viewDate"
-  [events]="events"
-  (dayClicked)="clickedDate = $event.day.date"
-  (highlightDay)="toggleDayHighlight($event.event, true)">
-</mwl-calendar-week-view>
+<div [ngSwitch]="view">
+  <h1 *ngIf="auth.user$ | async as user">{{user.displayName}}</h1>
+  <mwl-calendar-month-view
+    *ngSwitchCase="'month'"
+    [viewDate]="viewDate"
+    [events]="departmentRoster"
+    [refresh]="refresh"
+    (dayClicked)="clickedDate = $event.day.date"
+    [activeDayIsOpen]="activeDayIsOpen"
+    (dayClicked)="dayClicked($event.day)"
+    (eventClicked)="handleEvent('Clicked', $event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-month-view>
+  <mwl-calendar-week-view
+    *ngSwitchCase="'week'"
+    [viewDate]="viewDate"
+    [events]="departmentRoster"
+    [refresh]="refresh"
+    (dayClicked)="clickedDate = $event.day.date"
+    (eventClicked)="handleEvent('Clicked', $event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)"
+    (dragPointerDown)="dragStart(weekViewContainer, event)">
+  </mwl-calendar-week-view>
+  <mwl-calendar-day-view
+    *ngSwitchCase="'day'"
+    [viewDate]="viewDate"
+    [events]="departmentRoster"
+    [refresh]="refresh"
+    (dayClicked)="clickedDate = $event.day.date"
+    (eventClicked)="handleEvent('Clicked', $event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-day-view>
 </div>
 
-  <div>
-  <h1> Pat</h1>
-<mwl-calendar-week-view
-  [viewDate]="viewDate"
-  [events]="patHours"
-  (dayClicked)="clickedDate = $event.day.date"
-  (highlightDay)="toggleDayHighlight($event.event, true)">
-</mwl-calendar-week-view>
-</div>
 
-  <div>
-  <h1> Joe</h1>
-<mwl-calendar-week-view
-  [viewDate]="viewDate"
-  [events]="joeHours"
-  (dayClicked)="clickedDate = $event.day.date"
-  (highlightDay)="toggleDayHighlight($event.event, true)">
-</mwl-calendar-week-view>
-</div>
-</div>
-
-</div>

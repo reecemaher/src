@@ -10,4 +10,5 @@ export interface User {
     email: string;
     displayName?: string;
     roles: Roles;
+    department?: string;
 }

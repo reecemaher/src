@@ -4,6 +4,18 @@ import { AuthService } from '../core/auth.service';
 import { CalendarEvent } from 'angular-calendar';
 import { colors } from '../calendar/colors';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  addDays,
+  endOfMonth,
+  isSameDay,
+  isSameMonth,
+  addHours,
+  startOfISOWeek
+} from 'date-fns';
 
 @Component({
   selector: 'subscriber-page',
@@ -15,22 +27,31 @@ export class SubscriberPageComponent implements OnInit {
   postRef;
   post$;
   user;
+  userDepartment;
+  myUid;
+  refresh: Subject<any> = new Subject();
+  departmentRoster: Object[] =[];
 
   public collegues : AngularFirestoreCollection<any>;
   public collegues$: Observable<any>;
 
   constructor(private afs: AngularFirestore, public auth: AuthService) { 
-   this.auth.user$.subscribe(user => this.user = user)
-
+    this.auth.user$.subscribe(user=>{
+      this.myUid = user.uid;
+      this.userDepartment = user.department;
+      //this.userDisplayName = user.displayName;
+      console.log(user.uid + ' ' + user.department);
+      this.loadDepartmentRoster(this.departmentRoster,this.userDepartment,this.refresh);
+    })
   }
 
   ngOnInit() {
-    this.postRef = this.afs.doc('rosters/Departments');
-    this.post$ = this.postRef.valueChanges();
 
-    this.collegues = this.afs.collection('users', ref => {
-      return ref.where('Department','==', 'Shopfloor')
-    });
+    this.collegues = this.afs.collection<any>('rosters');
+
+    // this.collegues = this.afs.collection('users', ref => {
+    //   return ref.where('Department','==', 'Shopfloor')
+    // });
 
     this.collegues$ = this.collegues.valueChanges();
 
@@ -48,58 +69,41 @@ export class SubscriberPageComponent implements OnInit {
     this.postRef.update({ content: ''})
   }
 
+  loadDepartmentRoster(departmentRoster,userDepartment,refresh){
+    return this.collegues.ref.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc){
+          departmentRoster.push(doc.data());
+        });
+
+        for(var i= departmentRoster.length -1; i >= 0 ;i--){
+          if(departmentRoster[i].department != userDepartment){
+            departmentRoster.splice(i,1);
+          }
+        }
+
+        refresh.next();
+
+      });
+  }
+
     view: string = 'month';
     viewDate: Date = new Date();
-    events: CalendarEvent[] = [
-    {
-      title: '14.00-22.00',
-      color: colors.red,
-      start: new Date(),
-      actions:[
-        {
-          label: '<i class="fa fa-fw-pencil"></i>',
-          onClick: ({ event }: { event: CalendarEvent }): void => {
-            console.log('Edit Event', event);
-          }
-        }
-      ],
-      draggable: true
-    }
-  ];
+    
+    clickedDate: Date;
 
-   joeHours: CalendarEvent[] = [
-    {
-      title: '12.00-20.00',
-      color: colors.red,
-      start: new Date(),
-      actions:[
-        {
-          label: '<i class="fa fa-fw-pencil"></i>',
-          onClick: ({ event }: { event: CalendarEvent }): void => {
-            console.log('Edit Event', event);
-          }
-        }
-      ]
+    activeDayIsOpen: boolean = true;
+    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+     if (isSameMonth(date, this.viewDate)) {
+       if (
+         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) || events.length === 0
+         ) {
+       this.activeDayIsOpen = false;
+        } else {
+        this.activeDayIsOpen = true;
+        this.viewDate = date;
+      }
     }
-  ];
-
-   patHours: CalendarEvent[] = [
-    {
-      title: '17.00-22.00',
-      color: colors.red,
-      start: new Date()/*,
-      actions:[
-        {
-          label: '<i class="fa fa-fw-pencil"></i>',
-          onClick: ({ event }: { event: CalendarEvent }): void => {
-            console.log('Edit Event', event);
-          }
-        }
-      ]*/
-    }
-  ];
-
-  clickedDate: Date;
+  }
 
 
 }

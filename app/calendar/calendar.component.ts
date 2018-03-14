@@ -20,6 +20,7 @@ import { Subject } from 'rxjs/Subject';
 import { AngularFirestore,AngularFirestoreCollection,AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Roster } from './roster';
 import { DateTimePickerComponent } from './date-time-Picker.component';
+
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 @Component({
@@ -131,6 +132,8 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
          // console.log(rosters);
         });
 
+        //rosters = rosters.filter(hours => hours.uid ==  myUid);
+
         for(var i = rosters.length -1; i >= 0 ; i--){
           //console.log(rosters[i].uid);
            if(rosters[i].uid != myUid){
@@ -153,6 +156,8 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
         rosters.push(doc.data());
         //console.log(rosters);
       });
+
+      //rosters = rosters.filter(holidays => holidays.uid == myUid);
 
       for(var i = rosters.length -1; i >= 0 ; i--){
          if(rosters[i].uid != myUid || rosters[i].uid == undefined){

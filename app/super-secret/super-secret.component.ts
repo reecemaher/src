@@ -35,7 +35,7 @@ import { ViewChild } from '@angular/core/src/metadata/di';
 
 
 export class SuperSecretComponent implements OnInit {
-  selected;
+  selected = 'All departments';
 
   private calCol: AngularFirestoreCollection<any>;
   cal: Observable<any[]>;
@@ -72,11 +72,14 @@ export class SuperSecretComponent implements OnInit {
     this.usersCollection = this.afs.collection<User>('users');
     this.users = this.usersCollection.valueChanges();
 
+    this.departmentCal = this.afs.collection<any>('rosters');
+
    }
 
    
 
   ngOnInit() {
+    this.loadhours(this.rostersView,this.actions,this.refresh);
     
   }
 
@@ -103,17 +106,21 @@ export class SuperSecretComponent implements OnInit {
       return ref.where('department','==',department);
     });
     this.users = this.usersCollection.valueChanges();
-
+    
     this.departmentCal = this.afs.collection<any>('rosters', ref =>{
       return ref.where('department', '==' ,department);
     });
-
+    rosterView = []; 
     this.departmentCal.ref.get().then(function(querySnapshot) {
       querySnapshot.forEach(function(doc) {
+               
         //doc.data()['actions'] = actions;
         rosterView.push(doc.data());
         //console.log(holidays);
       });
+
+      //rosterView = rosterView.filter(employeeDepartment => employeeDepartment.dep == department);
+
       for(var i= rosterView.length -1; i >= 0 ;i--){
         if(rosterView[i].department != department){
           rosterView.splice(i,1);
@@ -132,21 +139,19 @@ export class SuperSecretComponent implements OnInit {
   reset(){
     this.usersCollection = this.afs.collection<User>('users');
     this.users = this.usersCollection.valueChanges();
-    this.selected ='';
+    this.selected ='All Departments';
+    this.rostersView = [];
+    this.loadhours(this.rostersView,this.actions,this.refresh);
+
   }
 
-  loadhours(rosterView,refresh,actions){ 
+  loadhours(rosterView,actions,refresh){ 
     return  this.departmentCal.ref.get().then(function(querySnapshot) {
       querySnapshot.forEach(function(doc) {
         //doc.data()['actions'] = actions;
         rosterView.push(doc.data());
         //console.log(holidays);
       });
-      for(var i= rosterView.length -1; i >= 0 ;i--){
-        if(rosterView[i].department != department){
-          rosterView.splice(i,1);
-        }
-      }
       for(var i =0; i < rosterView.length; i++){
         rosterView[i]['actions'] = actions; 
         rosterView[i]['draggable'] = true;
@@ -155,16 +160,16 @@ export class SuperSecretComponent implements OnInit {
   });
   }
 
-  activeDayIsOpen: boolean = true;
+  activeDayIsOpen: boolean = false;
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
       if (isSameMonth(date, this.viewDate)) {
         if (
-          (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
+          (isSameDay(this.viewDate, date) && this.activeDayIsOpen === false) ||
           events.length === 0
         ) {
-          this.activeDayIsOpen = false;
-        } else {
           this.activeDayIsOpen = true;
+        } else {
+          this.activeDayIsOpen = false;
           this.viewDate = date;
         }
       }
