@@ -102,6 +102,7 @@ export class SuperSecretComponent implements OnInit {
   ];
 
   filerByDepartment(department: string,rosterView,actions,refresh){
+    
     this.usersCollection = this.afs.collection<User>('users', ref => {
       return ref.where('department','==',department);
     });
@@ -110,7 +111,6 @@ export class SuperSecretComponent implements OnInit {
     this.departmentCal = this.afs.collection<any>('rosters', ref =>{
       return ref.where('department', '==' ,department);
     });
-    rosterView = []; 
     this.departmentCal.ref.get().then(function(querySnapshot) {
       querySnapshot.forEach(function(doc) {
                

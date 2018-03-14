@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
-import { CalendarEvent, CalendarMonthViewDay } from 'angular-calendar';
+import {  CalendarMonthViewDay } from 'angular-calendar';
+import { CalendarEvent } from 'calendar-utils';
 import { DayViewHour } from 'calendar-utils';
 import { AngularFirestore,AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -161,16 +162,20 @@ export class HolidaysComponent implements OnInit {
       {
         label: '<i class="fa fa-fw fa-pencil"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
+          console.log('eventid' + ' ' + event.id);
           //console.log('edited');
+          this.afs.doc('holidays/' + event.id).update({ 
+            start: event.start,
+            end: event.end
+          });
         }
       },
       {
         label: '<i class="fa fa-fw fa-times"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
           this.holidays = this.holidays.filter(iEvent => iEvent !== event);
-          this.tempDocument = this.afs.doc('holidays/9drHnvtWmhS7JnZLvfKN');
-        // this.handleEvent('Deleted', event);
-        //this.requestCollection.({start:day, title: 'booked', color: colors.red});
+          console.log('eventid' + event.id);
+          this.afs.doc('holidays/' + event.id).delete();
         }
       }
     ];
@@ -183,7 +188,6 @@ export class HolidaysComponent implements OnInit {
           //console.log(holidays);
         });
         for(var i =0; i < holidays.length; i++){
-          console.log(holidays[i].uid +' '+ userId);
           if(holidays[i].uid == userId){
           holidays[i]['actions'] = actions; 
           holidays[i]['draggable'] = true;
@@ -201,19 +205,49 @@ export class HolidaysComponent implements OnInit {
     
 
     addEvent(day: CalendarMonthViewDay): void {
+      var referalId;
+      this.requestCollection.add({start:day, title: this.userDisplayName + ' booked this day', color: colors.red, uid: this.userId}).then(
+        ref => {console.log('Added document with Id: ', ref.id)});
+        // {let referalId = ref.id});
+        
+        //{console.log('Added document with Id: ', ref.id)});
+        console.log('id ' + referalId);
+
+
+         this.holidays.push({
+          id: referalId,
+          start: day,
+          color: colors.red,
+          title: this.userDisplayName + ' booked this day',
+          actions:this.actions,
+          draggable: true,
+          uid: this.userId
+         });
+
+        // let holidays = {
+        //   id: referalId,
+        //   start: day,
+        //   color: colors.red,
+        //   title: this.userDisplayName + ' booked this day',
+        //   actions:this.actions,
+        //   draggable: true,
+        //   uid: this.userId
+        // };
+
+        //this.addEventLocally(holidays);
+     
       
-      this.holidays.push({
-        start: day,
-        color: colors.red,
-        title: this.userDisplayName + ' booked this day',
-        actions:this.actions,
-        draggable: true,
-        uid: this.userId
-      });
-      this.requestCollection.add({start:day, title: this.userDisplayName + ' booked this day', color: colors.red, uid: this.userId});
       //this.loadhours(this.holidays,this.actions,this.refresh);
       this.refresh.next();
     }
+
+    // addEventLocally(holiday : Object ){
+    //   this.holidays.push({
+    //     holiday
+    //   });
+
+    //   this.refresh.next();
+    // }
 
     addHoliday(day: CalendarMonthViewDay){
       let newDay = day.toString();
@@ -239,17 +273,23 @@ export class HolidaysComponent implements OnInit {
 
     }
 
-    eventTimesChanged({event,newStart,newEnd,}: CalendarEventTimesChangedEvent): void {
+    eventTimesChanged({event,newStart,newEnd}: CalendarEventTimesChangedEvent): void {
       event.start = newStart;
       event.end = newEnd;
-      //this.tempDocument = this.afs.doc('holidays/');
-      
-      //this.tempDocument.update({start:newStart,title: 'booked', color: colors.yellow});
 
-      //this.requestCollection.add({start:newStart, title: 'booked', color: colors.red});
-      //this.handleEvent('Dropped or resized', event);
-      //console.log(this.userId);
+      if(isFuture(newStart) || isToday(newStart)){
+      this.afs.doc('holidays/' + event.id).update({
+        start: newStart,
+        //end: newEnd
+      })
       this.refresh.next();
+    }
+
+    else{
+      alert('day unavailable');
+      
+    }
+      
     }
 
 }
