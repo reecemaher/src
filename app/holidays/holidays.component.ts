@@ -166,7 +166,7 @@ export class HolidaysComponent implements OnInit {
           //console.log('edited');
           this.afs.doc('holidays/' + event.id).update({ 
             start: event.start,
-            end: event.end
+            //end: event.end
           });
         }
       },
@@ -185,6 +185,7 @@ export class HolidaysComponent implements OnInit {
         querySnapshot.forEach(function(doc) {
           //doc.data()['actions'] = actions;
           holidays.push(doc.data());
+          console.log(doc.id);
           //console.log(holidays);
         });
         for(var i =0; i < holidays.length; i++){
@@ -205,54 +206,44 @@ export class HolidaysComponent implements OnInit {
     
 
     addEvent(day: CalendarMonthViewDay): void {
-      var referalId;
-      this.requestCollection.add({start:day, title: this.userDisplayName + ' booked this day', color: colors.red, uid: this.userId}).then(
-        ref => {console.log('Added document with Id: ', ref.id)});
+      var referalId = this.userId + day;
+      
         // {let referalId = ref.id});
         
         //{console.log('Added document with Id: ', ref.id)});
         console.log('id ' + referalId);
 
 
-         this.holidays.push({
-          id: referalId,
-          start: day,
-          color: colors.red,
-          title: this.userDisplayName + ' booked this day',
-          actions:this.actions,
-          draggable: true,
-          uid: this.userId
-         });
+        var newHolidays = {
+            id: referalId,
+            start: day,
+            color: colors.red,
+            title: this.userDisplayName + ' booked this day',
+            actions:this.actions,
+            draggable: true,
+            uid: this.userId
+          };
 
-        // let holidays = {
-        //   id: referalId,
-        //   start: day,
-        //   color: colors.red,
-        //   title: this.userDisplayName + ' booked this day',
-        //   actions:this.actions,
-        //   draggable: true,
-        //   uid: this.userId
-        // };
-
-        //this.addEventLocally(holidays);
-     
-      
-      //this.loadhours(this.holidays,this.actions,this.refresh);
+          var dbData ={
+            id: referalId,
+            start: day,
+            color: colors.red,
+            title: this.userDisplayName + ' booked this day',
+            uid: this.userId
+          }
+        
+        this.holidays.push(newHolidays);
+        // this.requestCollection.add(dbData).then(ref => referalId = ref.id);
+         this.requestCollection.doc(referalId).set(dbData);
       this.refresh.next();
     }
-
-    // addEventLocally(holiday : Object ){
-    //   this.holidays.push({
-    //     holiday
-    //   });
-
-    //   this.refresh.next();
-    // }
 
     addHoliday(day: CalendarMonthViewDay){
       let newDay = day.toString();
       let endDay = addDays(new Date(newDay),7);
-      this.holidays.push({
+      let referalId = this.userId + day;
+      let clientHol = {
+        id: referalId,
         start: day,
         color: colors.yellow,
         end: endDay,
@@ -260,9 +251,20 @@ export class HolidaysComponent implements OnInit {
         actions:this.actions,
         draggable: true,
         uid: this.userId
-      });
+      }
 
-      this.requestCollection.add({start: day,end: endDay, title: this.userDisplayName + ' booked this week', color:colors.yellow, uid: this.userId})
+      let serverHol = {
+        id: referalId,
+        start: day,
+        color: colors.yellow,
+        end: endDay,
+        title: this.userDisplayName + ' booked this week',
+        uid: this.userId
+      }
+      
+      this.holidays.push(clientHol);
+
+      this.requestCollection.doc(referalId).set(serverHol);
       //this.loadhours(this.holidays,this.actions,this.refresh);
       this.refresh.next();
     }

@@ -1,39 +1,36 @@
 
-
-  <hr>
-
-<div id="header">
+<div id="header" class="flex justify-between bb ">
     <div *ngIf="auth.user$ | async; then authenticated">
         <!-- template will replace this div -->
       </div>
 
-      <div id="navBar">
+      <div id="navBar" class="flex-grow pa3 flex items-center">
 
-          <a class="button is-info" routerLink="/secret">
+          <a class="f6 link dib black center bg-animate hover-bg-black hover-white no-underline pv2 ph4 br b--black-80" routerLink="/secret">
             Manager Page
           </a>
         
-          <a  class="button is-info" routerLink="/calendar">
+          <a  class="f6 link dib black center bg-animate hover-bg-black hover-white no-underline pv2 ph4 br b--black-80" routerLink="/calendar">
            My Calendar
           </a>
         
-          <a class="button is-success" routerLink="/content">
+          <a class="f6 link dib black center bg-animate hover-bg-black hover-white no-underline pv2 ph4 br b--black-80" routerLink="/content">
             Department Calendar
           </a>
       
-          <a class="button is-success" routerLink="/holidays">
+          <a class="f6 link dib black center bg-animate hover-bg-black hover-white no-underline pv2 ph4 br b--black-80" routerLink="/holidays">
             Holidays
           </a>
+
+          <button class="bg-white f6 dib black center bg-animate hover-bg-black hover-white no-underline pv2 ph4 br-pill ba b--black-20" (click)="auth.signOut()" >Logout</button>
         
       </div>
 </div>
-<hr/>
 
 
 
 <ng-template #authenticated>
-    <div *ngIf="auth.user$ | async as user">
-      Howdy, {{ user.displayName }} : {{ user.uid }} : {{user.department}}
-      <button (click)="auth.signOut()" >Logout</button>
+    <div *ngIf="auth.user$ | async as user" class="flex-grow pa3 flex items-center">
+      Howdy {{ user.displayName }} 
     </div>
 </ng-template>

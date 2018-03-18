@@ -10,12 +10,12 @@ type FormErrors = { [u in UserFields]: string };
 @Component({
   selector: 'user-form',
   templateUrl: './user-form.component.html',
-  styleUrls: ['./user-form.component.scss'],
+  styleUrls: ['./user-form.component.css'],
 })
 export class UserFormComponent implements OnInit {
 
   userForm: FormGroup;
-  newUser = true; // to toggle login or signup form
+  newUser = false; // to toggle login or signup form
   passReset = false; // set to true when password reset is triggered
   formErrors: FormErrors = {
     'email': '',

@@ -1,12 +1,14 @@
-<form [formGroup]="userForm"  *ngIf="newUser"  (ngSubmit)="signup()" >
+<div class="w-30 mt6 center">
+<form [formGroup]="userForm"  *ngIf="newUser"  (ngSubmit)="signup()" class="">
 
   <h3>New User Signup</h3>
   <p class="button is-small" (click)="toggleForm()">Already Registered?</p>
   <hr>
 
-  <label for="displayName">Display Name</label>
-  <input type="text" id="displayName" class="input"
-         formControlName="displayName" required >
+  <div>
+  <label class="f6 b db mb2" for="displayName">Display Name</label>
+  <input type="text" id="displayName" class="input" formControlName="displayName" required >
+  </div>      
 
   <label for="email">Email</label>
   <input type="email" id="email" class="input"
@@ -18,7 +20,7 @@
 
   
 
-  <label for="password">Password</label>
+  <label for="password" class="">Password</label>
   <input type="password" id="password" class="input"
          formControlName="password" required >
 
@@ -27,7 +29,11 @@
   </div>
 
   <div *ngIf="userForm.valid" class="notification is-success">Form is valid</div>
-  <button type="submit" class="button" [disabled]="!userForm.valid">Sign Up</button>
+  <button type="submit" class="button fl w-50 hover-bg-black hover-white" [disabled]="!userForm.valid">Sign Up</button>
+
+  <button (click)="auth.googleLogin()" class="button btn-social btn-google fl w-50 hover-bg-black hover-white" >
+    <i class="fa fa-google"></i> Connect Google
+  </button>
 
 </form>
 
@@ -53,16 +59,18 @@
     {{ formErrors.password }}
   </div>
 
-  <button type="submit" class="button" [disabled]="!userForm.valid">Login</button>
+  <div class="">
+  <button type="submit" class="button fl w-50 hover-bg-black hover-white" [disabled]="!userForm.valid">Login</button>
 
-  <span *ngIf="userForm.valid" class="help is-success">Form Looks Valid</span>
+  <button (click)="auth.googleLogin()" class="button btn-social btn-google fl w-50 hover-bg-black hover-white" >
+      <i class="fa fa-google"></i> Connect Google
+    </button>
 
+  </div>
   
+  <span *ngIf="userForm.valid" class="help is-success">Form Looks Valid</span>
 
 </form>
 
-
-
-  <button (click)="auth.googleLogin()" class="button btn-social btn-google" >
-    <i class="fa fa-google"></i> Connect Google
-  </button>
+ 
+</div>
