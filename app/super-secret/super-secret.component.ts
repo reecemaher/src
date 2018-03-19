@@ -22,8 +22,8 @@ import { User } from '../core/user';
 import { rosters } from './dbTest';
 import { forEach } from '@angular/router/src/utils/collection';
 import {CalendarComponent} from "ap-angular2-fullcalendar/src/calendar/calendar";
-import { RostersService } from '../service/rosters.service'
-import { ViewChild } from '@angular/core/src/metadata/di';
+import { RostersService } from '../service/rosters.service';
+import { DateTimePickerComponent } from '../calendar/date-time-Picker.component';
 
 @Component({
   selector: 'super-secret',
@@ -36,7 +36,7 @@ import { ViewChild } from '@angular/core/src/metadata/di';
 
 export class SuperSecretComponent implements OnInit {
   selected = 'All departments';
-
+  view: string = 'month'
   private calCol: AngularFirestoreCollection<any>;
   cal: Observable<any[]>;
   private usersCollection: AngularFirestoreCollection<User>;
@@ -54,6 +54,16 @@ export class SuperSecretComponent implements OnInit {
       'Checkouts',
      'Dairy'
    ];
+
+   days =[
+     'Monday',
+     'Tuesday',
+     'Wednsday',
+     'Thursday',
+     'Friday',
+     'Saturday',
+     'Sunday'
+   ]
 
 
    rostersView :Object[] = [];

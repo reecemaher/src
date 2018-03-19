@@ -198,13 +198,6 @@ export class HolidaysComponent implements OnInit {
     });
     }
 
-    
-
-    deleteEvent(){
-        
-    }
-    
-
     addEvent(day: CalendarMonthViewDay): void {
       var referalId = this.userId + day;
       
