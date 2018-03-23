@@ -24,7 +24,6 @@ import { SubscriberPageComponent } from './subscriber-page/subscriber-page.compo
 import { MyCalendarComponent } from './calendar/calendar.component';
 import { CalendarModule } from 'angular-calendar';
 import { DragAndDropModule } from 'angular-draggable-droppable';
-import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarComponent } from "ap-angular2-fullcalendar/src/calendar/calendar";
 
 import { RostersService } from './service/rosters.service'
@@ -44,6 +43,11 @@ import { TestComponent } from './test/test.component';
 import { NavComponent } from './nav/nav.component';
 import { HolidaysComponent } from './holidays/holidays.component';
 import { CalendarHeaderComponent } from './calendar/calendar-header.component';
+import { HolidaysService } from './service/holidays.service';
+
+//ngbModal
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 @NgModule({
   declarations: [
@@ -71,6 +75,7 @@ import { CalendarHeaderComponent } from './calendar/calendar-header.component';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
     AngularFireAuthModule,
+    NgbModalModule.forRoot(),
     CalendarModule.forRoot(),
     DragAndDropModule,
     BrowserAnimationsModule,
@@ -78,7 +83,7 @@ import { CalendarHeaderComponent } from './calendar/calendar-header.component';
     MatCheckboxModule,
     MatGridListModule
   ],
-  providers: [RostersService],
+  providers: [RostersService,HolidaysService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

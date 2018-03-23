@@ -6,11 +6,10 @@
 <h3> {{ rosterEvent | async | json }}</h3> -->
 <app-nav></app-nav>
 
-<div class="row text-center">
-  <div class="col-md-4">
-    <div class="btn-group">
-      <div
-        class="button"
+<div class="center flex justify-around">
+  <div class="w-25 pa2 mr2">
+    <div
+        class="button center"
         mwlCalendarPreviousView
         [view]="view"
         [(viewDate)]="viewDate"
@@ -18,13 +17,13 @@
         Previous
       </div>
       <div
-        class="button"
+        class="button center"
         mwlCalendarToday
         [(viewDate)]="viewDate">
         Today
       </div>
       <div
-        class="button"
+        class="button center"
         mwlCalendarNextView
         [view]="view"
         [(viewDate)]="viewDate"
@@ -32,32 +31,29 @@
         Next
       </div>
     </div>
-  </div>
-  <div class="col-md-4">
+  <div class="w-25 pa2 center">
     <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
   </div>
-  <div class="col-md-4">
-    <div class="btn-group">
+    <div class="w-25 pa2 mr2">
       <div
-        class="button"
+        class="button fr"
         (click)="view = 'month'"
         [class.active]="view === 'month'">
         Month
       </div>
       <div
-        class="button"
+        class="button fr"
         (click)="view = 'week'"
         [class.active]="view === 'week'">
         Week
       </div>
       <div
-        class="button"
+        class="button fr"
         (click)="view = 'day'"
         [class.active]="view === 'day'">
         Day
       </div>
     </div>
-  </div>
 </div>
 <br>
 
@@ -69,27 +65,9 @@
 <strong *ngIf="clickedDate">You clicked on this day: {{ clickedDate | date:'medium' }}</strong>
 </div>
 
-<hr/>
-
-
-<!--
-    
-<div>
-  <h1> reece</h1>
-<mwl-calendar-week-view
-  [viewDate]="viewDate"
-  [events]="events"
-  [refresh]="refresh"
-  (dayClicked)="clickedDate = $event.day.date"
-  (highlightDay)="toggleDayHighlight($event.event, true)"
-  (eventClicked)="handleEvent('Clicked', $event.event)"
-    (eventTimesChanged)="eventTimesChanged($event)">
-</mwl-calendar-week-view>
-<div>
--->
 
 <div [ngSwitch]="view">
-  <h1 *ngIf="auth.user$ | async as user">{{user.displayName}}</h1>
+  <!-- <h1 *ngIf="auth.user$ | async as user">{{user.displayName}}</h1> -->
   <mwl-calendar-month-view
     *ngSwitchCase="'month'"
     [viewDate]="viewDate"
@@ -121,20 +99,4 @@
     (eventTimesChanged)="eventTimesChanged($event)">
   </mwl-calendar-day-view>
 </div>
-<!-- <div>
-  <table *ngFor="let roster of rosters$ | async">
-    <tr>
-      <th>Monday<p>Feb 4</p></th>
-      <th>Tuesday</th>
-      <th>Wednsday</th>
-      <th>Thursday</th>
-      <th>Friday</th>
-      <th>Saturday</th>
-      <th>Sunday</th>
-    </tr>
 
-    <tr>
-      <td>{{roster.title}}</td>
-    </tr>
-  </table>
-</div> -->

@@ -1,7 +1,21 @@
 <app-nav></app-nav>
+<ng-template #modalContent let-close="close">
+    <div class="modal-header">
+        <h4 class="modal-title">Change Date</h4>
+      </div>
+  <div>
+    <label>New Date</label>
+    <input type="date" [(ngModel)]='modalData.start'  #newStart>
+    <button class="button" (click)="updateHoliday(modalData)" (click)="close()">Save</button>
+    <button class="button" (click)="close()">Close</button>
+  </div>
+</ng-template>
+
+<h4 > {{bookable}}</h4>
 
 <div class="ml3">
-  <div class="">
+  <div class="w-100">
+  <div class="center">
           <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
           <div
             class="button"
@@ -26,18 +40,19 @@
             Next
           </div>
   </div>
+</div>
   <hr/>
   <div class="alert alert-info">
       Click on a day.
-    <div *ngIf="clickedDate">You clicked on this day: {{ clickedDate | date:'medium' }}
-      <button class="button" (click)="dayOffRequest(clickedDate)">Book this day</button>
-      <button class="button" (click)="weekOffRequest(clickedDate)">Book this week</button>
+    <div *ngIf="clickedDate">You clicked on this day:{{ clickedDate | date:'medium' }}
+      <button class="button" [disabled]='bookable' (click)="dayOffRequest(clickedDate)">Book this day</button>
+      <button class="button" [disabled]='bookable' (click)="weekOffRequest(clickedDate)">Book this week</button>
     </div>
   </div>
     <hr/>
 
     
-    <div id="calendarConatainer" class="fl w-80">
+    <div id="calendarConatainer" class="fl w-100">
     <mwl-calendar-month-view
     class="pl8"
         [viewDate]="viewDate"
@@ -46,7 +61,6 @@
         (dayClicked)="clickedDate = $event.day.date"
         [activeDayIsOpen]="activeDayIsOpen"
         (dayClicked)="dayClicked($event.day)"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
         (eventTimesChanged)="eventTimesChanged($event)">
       </mwl-calendar-month-view>
   </div>

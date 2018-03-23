@@ -5,7 +5,9 @@ export interface requests{
     day?: CalendarMonthViewDay;
     start: Date;
     end?: Date;
-    color: string;
+    color: object;
     title: string;
     uid: string;
+    id: string;
+    department: string;
 }

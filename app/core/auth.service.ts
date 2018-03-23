@@ -36,7 +36,7 @@ export class AuthService {
     console.log(email,password);
     return this.afAuth.auth.createUserWithEmailAndPassword(email, password)
     .then((user) => {
-      this.router.navigate(['dashboard']);
+      this.router.navigate(['calendar']);
       return this.updateUserData(user);
       })
     .catch((error) => this.handleError(error));

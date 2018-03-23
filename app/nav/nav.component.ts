@@ -10,7 +10,7 @@ export class NavComponent implements OnInit {
 
 user;
 
-  constructor(private auth: AuthService) {
+  constructor(public auth: AuthService) {
 
    }
 

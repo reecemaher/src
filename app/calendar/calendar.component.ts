@@ -19,7 +19,6 @@ import { colors } from './colors';
 import { Subject } from 'rxjs/Subject';
 import { AngularFirestore,AngularFirestoreCollection,AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Roster } from './roster';
-import { DateTimePickerComponent } from './date-time-Picker.component';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';

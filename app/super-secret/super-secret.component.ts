@@ -23,7 +23,6 @@ import { rosters } from './dbTest';
 import { forEach } from '@angular/router/src/utils/collection';
 import {CalendarComponent} from "ap-angular2-fullcalendar/src/calendar/calendar";
 import { RostersService } from '../service/rosters.service';
-import { DateTimePickerComponent } from '../calendar/date-time-Picker.component';
 
 @Component({
   selector: 'super-secret',

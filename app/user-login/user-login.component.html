@@ -1,10 +1,12 @@
  <app-nav></app-nav>
 
  <mat-grid-list cols="2" rowHeight="2:1">
-    <mat-grid-tile routerLink="/secret">
+    <mat-grid-tile routerLink="/secret" class="hover dim">
       Manager Page
     </mat-grid-tile>
-    <mat-grid-tile>>My Calendar</mat-grid-tile>
-    <mat-grid-tile>Department Calendar</mat-grid-tile>
-    <mat-grid-tile>Holidays</mat-grid-tile>
+    <mat-grid-tile routerLink="/calendar" class="hover dim">My Calendar</mat-grid-tile>
+    <!-- <mat-grid-tile class=""><img routerLink='/calendar' src='../../assets/images/calendar_temp.jpg'></mat-grid-tile> -->
+    <mat-grid-tile routerLink="/content" class="hover dim">Department Calendar</mat-grid-tile>
+    <!-- <mat-grid-tile><img routerLink='/holidays' src='../../assets/images/Holidays.jpg'></mat-grid-tile> -->
+    <mat-grid-tile routerLink="/holidays" class="hover dim">Holidays</mat-grid-tile>
   </mat-grid-list>
