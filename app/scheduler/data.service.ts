@@ -65,6 +65,7 @@ export class DataService {
     this.eventCollection = afs.collection('departmentRosters');
     this.getDepartments(this.resources);
     this.buildEvent(this.events);
+    this.getHolidays(this.events);
     //this.addDepartment('Fruit and Veg','06');
   }
 
@@ -90,10 +91,25 @@ export class DataService {
   }
 
   getHolidays(event){
-    this.holidaysCollection = this.afs.collection('departmentRosters');
+    this.holidaysCollection = this.afs.collection('holidays');
     this.holidaysCollection.ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
-        event.push(doc.data());
+      // color:'#3c78d8',
+      // end:'2018-03-25T22:00:00',
+      // id: '4',
+      // resource:'aKSLf2mHL5SCAtIJ9AXRqDVV21U2',
+      // start:'2018-03-25T14:00:00',
+      // text:'14.00-22.00'
+        let resource = doc.data().uid;
+        let end = doc.data().start;
+        let start = doc.data().start;
+        let id = doc.data().id;
+        let text = doc.data().title;
+        let color = doc.data().color[1];
+
+        let holiday = {resource:resource, end:end, start:start, color:color, id:id,text:text}
+
+        event.push(holiday);
       })
     })
 
