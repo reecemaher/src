@@ -41,34 +41,36 @@ import {  CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-ca
   encapsulation: ViewEncapsulation.None
 })
 export class HolidaysComponent implements OnInit {
+  //popup for changing event days data
   @ViewChild('modalContent') modalContent: TemplateRef<any>;
-//bokking days 
-bookable = true;
 
   //Firestore collection containing holidays/DOR
   requestCollection: AngularFirestoreCollection<requests>;
   request: Observable<requests[]>;
 
-  //tempDocument for deleting || editing requests
-  tempDocument: AngularFirestoreDocument<any>;
-  changeRequest: Observable<any>;
-
-//Calendar default view
+//Calendar default view (calender loads on the month view)
   view: string = 'month';
 
+//Constraints
+  //Amount of days before booking is disabled
   bookabledays: number = 2;
-
+  // If day is bookable 
+  bookable = true;
 
   viewDate: Date = new Date();
   selectedMonthViewDay: CalendarMonthViewDay;
   dayView: DayViewHour[];
   selectedDayViewDate: Date;
-  // hours to be diplayed on calendar 
+
+  // Events to be diplayed on calendar 
   holidays: Object[] =[];
+
+//user information
   userId;
   userDisplayName;
   userDepartment;
 
+  //pop up for changing dates - to be used to move events between months
   modalData: CalendarEvent;
 
 
@@ -76,6 +78,7 @@ bookable = true;
   //user$: Observable<User>;
 
     constructor(private modal: NgbModal,public auth: AuthService,private afs: AngularFirestore,private afAuth: AngularFireAuth) {
+      //User data to be saved on new events (uid + department)
       this.auth.user$.subscribe(user=>{
         this.userId = user.uid;
         this.userDisplayName = user.displayName;
@@ -95,14 +98,15 @@ bookable = true;
 
      }
 
-    clickedDate: Date;
 
-
+//Function for handling incoming day off requests
     dayOffRequest(day: CalendarMonthViewDay, events : CalendarEvent[]){
       let newDay = day.toString();
       let book = this.bookable;
       console.log('b'+book);
-      if(isFuture(newDay) || isToday(newDay) && book == true){     
+
+      //Constraints ensure a valid date is requested(today or future date)
+      if(isFuture(newDay) || isToday(newDay) && book === true){     
         day.cssClass = 'cal-day-booked';
         this.addEvent(day);
         this.bookable = false;
@@ -112,9 +116,12 @@ bookable = true;
         }
     }
 
+
+//Function to handle holiday requests
     weekOffRequest(day: CalendarMonthViewDay){
       let newDay = day.toString();
 
+//Constraints ensure a valid date is requested(today or future date)
       if(isFuture(newDay) || isToday(newDay)){
         this.addHoliday(day);
         this.bookable = false;
@@ -132,13 +139,16 @@ bookable = true;
     //   this.selectedMonthViewDay = day;
     // }
 
+//Dropdown to disaply all events on the clicked date    
     activeDayIsOpen: boolean = true;
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+//Constraint to prevent multiple bookings on the same date      
       if(events.length >= this.bookabledays){
         this.bookable = true;
         console.log(this.bookable);
       }
 
+//Checks to only open dropdown when the clicked date contains events
       if (isSameMonth(date, this.viewDate)) {
         if (
           (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
@@ -168,20 +178,20 @@ bookable = true;
       });
     }
 
+
     refresh: Subject<any> = new Subject();
 
+
+//Delete an dedit icons for events    
     actions: CalendarEventAction[] = [
+//Calls a function to handle the edit request      
       {
         label: '<i class="fa fa-fw fa-pencil"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
-          console.log('eventid' + ' ' + event.id);
-          // this.afs.doc('holidays/' + event.id).update({ 
-          //   start: event.start,
-          //   //end: event.end
-          // });
           this.handleEvent(event);
         }
       },
+//Deletes the correct event on the calendar and from the database      
       {
         label: '<i class="fa fa-fw fa-times"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
@@ -192,12 +202,16 @@ bookable = true;
       }
     ];
 
+
+//function to push objects into an array to be displayed on the calendar
     loadhours(holidays,refresh,actions,userId,userDepartment){ 
+//loops through each holiday and pushes it into the array      
       return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
           holidays.push(doc.data());
         });
 
+//loops through the array and removes each index that doesnt match the current logged in users department        
         for(var j =holidays.length -1; j >= 0; j--){
           if(holidays[j].department != userDepartment){
             holidays.splice(j,1);

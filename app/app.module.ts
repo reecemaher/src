@@ -48,6 +48,9 @@ import { HolidaysService } from './service/holidays.service';
 //ngbModal
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
+//scheduler
+import { SchedulerModule } from './scheduler/scheduler.module';
+
 
 @NgModule({
   declarations: [
@@ -81,7 +84,8 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
     BrowserAnimationsModule,
     MatSelectModule,
     MatCheckboxModule,
-    MatGridListModule
+    MatGridListModule,
+    SchedulerModule
   ],
   providers: [RostersService,HolidaysService],
   bootstrap: [AppComponent]
