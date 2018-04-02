@@ -233,10 +233,10 @@ export class HolidaysComponent implements OnInit {
 
     addEvent(day: CalendarMonthViewDay): void {
       var referalId = this.userId + day;
-     // var docId = this.afs.createId();
+      var docId = this.afs.createId();
         var newHolidays = {
-            id: referalId,
-           //id:docId,
+            //id: referalId,
+           id:docId,
             start: day,
             end:day,
             color: colors.red,
@@ -247,8 +247,8 @@ export class HolidaysComponent implements OnInit {
           };
 
           var dbData ={
-           // id:docId,
-            id: referalId,
+            id:docId,
+            //id: referalId,
             start: day,
             end:day,
             color: colors.red,
@@ -267,9 +267,9 @@ export class HolidaysComponent implements OnInit {
       let newDay = day.toString();
       let endDay = addDays(new Date(newDay),7);
       let referalId = this.userId + day;
-    // let docId = this.afs.createId();
+      let docId = this.afs.createId();
       let clientHol = {
-        id: referalId,
+        id: docId,
         start: day,
         color: colors.yellow,
         end: endDay,
@@ -280,7 +280,7 @@ export class HolidaysComponent implements OnInit {
       }
 
       let serverHol = {
-        id: referalId,
+        id: docId,
         start: day,
         color: colors.yellow,
         end: endDay,
@@ -321,7 +321,7 @@ export class HolidaysComponent implements OnInit {
       if(isFuture(newStart) || isToday(newStart)){
       this.afs.doc('holidays/' + event.id).update({
         start: newStart,
-        //end: newEnd
+        end: newEnd
       })
       this.refresh.next();
     }

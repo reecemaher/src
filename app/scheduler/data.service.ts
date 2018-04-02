@@ -6,10 +6,18 @@ import { AngularFirestoreCollection, AngularFirestore } from "angularfire2/fires
 import { User } from '../core/user';
 import { requests} from '../holidays/requests';
 
+export interface CreateEventParams {
+  start: string;
+  end: string;
+  text: string;
+  resource: string | number;
+}
+
 @Injectable()
 export class DataService {
 
   departmentCollection: AngularFirestoreCollection<any>;
+  departmentEvents: Observable<any>;
   eventCollection: AngularFirestoreCollection<any>;
   holidaysCollection: AngularFirestoreCollection<requests>;
 
@@ -17,40 +25,13 @@ export class DataService {
     { name: "Group A", id: "GA", expanded: true, children: [
       { name: "Resource 1", id: "R1"},
       { name: "Resource 2", id: "R2"}
-    ]},
-    { name: "Group B", id: "GB", expanded: true, children: [
-      { name: "Resource 3", id: "R3"},
-      { name: "Resource 4", id: "R4"}
     ]}
   ];
 
   events: any[] = [
+   
     {
-      id: "1",
-      resource: "R1",
-      start: '2018-03-25T14:00:00',
-      end: '2018-03-25T22:00:00',
-      text: "Scheduler Event 1",
-      color: "#e69138"
-    },
-    {
-      id: "2",
-      resource: "R2",
-      start: "2018-03-30",
-      end: "2018-03-30",
-      text: "Scheduler Event 2",
-      color: "#6aa84f"
-    },
-    {
-      id: "3",
-      resource: "R2",
-      start: "2018-11-03",
-      end: "2018-11-03",
-      text: "Scheduler Event 3",
-      color: "#3c78d8"
-    },
-    {
-      color:'#3c78d8',
+      color:'#FDF1BA',
       end:'2018-03-25T22:00:00',
       id: '4',
       resource:'aKSLf2mHL5SCAtIJ9AXRqDVV21U2',
@@ -59,9 +40,10 @@ export class DataService {
     }
   ];
 
-  constructor(private http : HttpClient, private afs:AngularFirestore){
+  constructor(private http : HttpClient, public afs:AngularFirestore){
 
     this.departmentCollection = afs.collection('departments');
+    this.departmentEvents = this.departmentCollection.valueChanges();
     this.eventCollection = afs.collection('departmentRosters');
     this.getDepartments(this.resources);
     this.buildEvent(this.events);
@@ -72,8 +54,9 @@ export class DataService {
   getDepartments(resource){
      this.departmentCollection.ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
+        console.log(resource);
         let d = doc.data().department;
-        let did = doc.data().departmenId;
+        let did = doc.data().departmentId;
         let ex = doc.data().expanded;
         let emp = doc.data().employees;
         let dep = { name: d, id: did,expanded:ex,children:emp}
@@ -94,25 +77,73 @@ export class DataService {
     this.holidaysCollection = this.afs.collection('holidays');
     this.holidaysCollection.ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
-      // color:'#3c78d8',
-      // end:'2018-03-25T22:00:00',
-      // id: '4',
-      // resource:'aKSLf2mHL5SCAtIJ9AXRqDVV21U2',
-      // start:'2018-03-25T14:00:00',
-      // text:'14.00-22.00'
         let resource = doc.data().uid;
-        let end = doc.data().start;
+        let end = doc.data().end;
         let start = doc.data().start;
         let id = doc.data().id;
         let text = doc.data().title;
-        let color = doc.data().color[1];
-
-        let holiday = {resource:resource, end:end, start:start, color:color, id:id,text:text}
+        let color = doc.data().color.primary;
+        let holiday = {resource:resource, end:end, start:start, backColor:'#e33030', id:id,text:text}
 
         event.push(holiday);
       })
     })
 
+  }
+
+  createHours(data: CreateEventParams,id) {
+    let e = {
+      start: data.start,
+      end: data.end,
+      resource: data.resource,
+      id: id,
+      text: data.text
+    };
+
+    //this.events.push(e);
+    return Observable.of(e);
+    //return this.http.post("/api/events/create", data).map((response:Response) => response.json());
+  }
+
+  saveHours(hours:any,id){
+    let newHours = {
+      start:hours.start,
+      end:hours.end,
+      id:id,
+      resource:hours.resource,
+      text:hours.text,
+      color:'#3c78d8'
+    }
+    this.eventCollection.doc(id).set(newHours);
+  }
+
+  // deleteHours(hoursId,type){
+  //   if(type != 'holidays'){
+  //   this.eventCollection.doc(hoursId).delete();
+  //   }
+
+  //   else{
+  //     this.holidaysCollection.doc(hoursId).delete();
+  //   }
+  // }
+
+  deleteHours(hoursId){
+    this.eventCollection.doc(hoursId).delete();
+    
+  }
+
+  updateHours(hours,id){
+    let updatedHours={
+      start:hours.newStart.value,
+      end:hours.newEnd.value,
+    }
+    this.eventCollection.doc(id).update(updatedHours); 
+  }
+
+  updateEvent(data: DayPilot.Event): Observable<any> {
+    console.log("Updating event: " + data.text());
+    console.log(data);
+    return Observable.of({result: "OK"});
   }
 
   buildSchedule(departmentName: string, departmentId:string,expanded: boolean){
@@ -149,8 +180,10 @@ export class DataService {
   }
 
   getResources(): Observable<any[]> {
-
+  // return this.departmentEvents = this.eventCollection.valueChanges();
     // simulating an HTTP request
+
+
     return new Observable(observer => {
       setTimeout(() => {
         observer.next(this.resources);

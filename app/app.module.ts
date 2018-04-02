@@ -46,7 +46,7 @@ import { CalendarHeaderComponent } from './calendar/calendar-header.component';
 import { HolidaysService } from './service/holidays.service';
 
 //ngbModal
-import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+//import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 //scheduler
 import { SchedulerModule } from './scheduler/scheduler.module';
@@ -78,14 +78,14 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
     AngularFireAuthModule,
-    NgbModalModule.forRoot(),
+   // NgbModalModule.forRoot(),
     CalendarModule.forRoot(),
     DragAndDropModule,
     BrowserAnimationsModule,
     MatSelectModule,
     MatCheckboxModule,
     MatGridListModule,
-    SchedulerModule
+    SchedulerModule,
   ],
   providers: [RostersService,HolidaysService],
   bootstrap: [AppComponent]

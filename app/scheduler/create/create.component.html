@@ -1,0 +1,20 @@
+<daypilot-modal #modal (close)="closed($event)">
+    <div class="center">
+      <h1>Add Hours</h1>
+      <form [formGroup]="form">
+        <div class="form-item">
+          <input formControlName="name" type="text" placeholder="time"> <span *ngIf="!form.controls.name.valid">Event name required</span>
+        </div>
+        <div class="form-item">
+          <input formControlName="start" type="text" placeholder="Start"> <span *ngIf="!form.controls.start.valid">Invalid datetime</span>
+        </div>
+        <div class="form-item">
+          <input formControlName="end" type="text" placeholder="End"> <span *ngIf="!form.controls.end.valid">Invalid datetime</span>
+        </div>
+        <div class="form-item">
+          <button (click)="submit()" [disabled]="!form.valid">Create</button>
+          <button (click)="cancel()">Cancel</button>
+        </div>
+    </form>
+    </div>
+    </daypilot-modal>
