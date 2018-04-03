@@ -30,6 +30,9 @@ import 'rxjs/add/operator/do';
 })
 export class MyCalendarComponent implements OnInit {
 
+  //scheduler hours
+  sheduleCollection: AngularFirestoreCollection<any>;
+
   rosterCollection: AngularFirestoreCollection<Roster>;
   rosterDoc: AngularFirestoreDocument<Roster>;
   rosterEvent: Observable<Roster>;
@@ -37,7 +40,7 @@ export class MyCalendarComponent implements OnInit {
   snapshot: any;
 
   rosters:Object[] = [] ;
-
+  clickedDate: Date;
 
   //test user id
   myUid;
@@ -48,7 +51,8 @@ export class MyCalendarComponent implements OnInit {
       //this.userDisplayName = user.displayName;
       console.log(user.uid);
       this.loadRoster(this.rosters,this.refresh,this.myUid);
-    this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
+      this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
+      this.loadHours(this.rosters,this.refresh,this.myUid);
     })
     }
 
@@ -60,44 +64,14 @@ export class MyCalendarComponent implements OnInit {
       console.log(arr)
       arr.map(snap => snap.payload.doc.data())
     });
-    
-    
 
-
+    this.sheduleCollection = this.afs.collection('DepartmentRosters');
     }
     
   view: string = 'month';
   viewDate: Date = new Date();
 
-   actions: CalendarEventAction[] = [
-    {
-      label: '<i class="fa fa-fw fa-pencil"></i>',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        console.log('edited');
-      }
-    },
-    {
-      label: '<i class="fa fa-fw fa-times"></i>',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.rosters = this.rosters.filter(iEvent => iEvent !== event);
-       // this.handleEvent('Deleted', event);
-      }
-    }
-  ];
-
   refresh: Subject<any> = new Subject();
-
-
-  eventTimesChanged({
-    event,
-    newStart,
-    newEnd
-  }: CalendarEventTimesChangedEvent): void {
-    event.start = newStart;
-    event.end = newEnd;
-    //this.handleEvent('Dropped or resized', event);
-    this.refresh.next();
-  }
 /*
   handleEvent(action: string, event: CalendarEvent): void {
     this.modalData = { event, action };
@@ -125,10 +99,10 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
   loadRoster(rosters,refresh,myUid){
       return  this.afs.collection('rosters').ref.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
-          //doc.data()['actions'] = actions;
 
+          if(doc.data().uid == myUid){
           rosters.push(doc.data());
-         // console.log(rosters);
+          }
         });
 
         //rosters = rosters.filter(hours => hours.uid ==  myUid);
@@ -144,31 +118,56 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
 
         refresh.next();
     });
-    
   }
 
-  loadUserHolidays(rosters,refresh,myUid){
-    return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
-      querySnapshot.forEach(function(doc) {
-        //doc.data()['actions'] = actions;
+  loadHours(rosters,refresh,myUid){
+    return this.afs.collection('departmentRosters').ref.get().then(function(querySnapshot){
+      querySnapshot.forEach(function(doc){
+        let hours = {
+          title:doc.data().text,
+          start:new Date(doc.data().start),
+          end: new Date(doc.data().end),
+          id: doc.data().resource,
+          color: colors.yellow
+        }
 
-        rosters.push(doc.data());
-        //console.log(rosters);
+          if(hours.id == myUid){
+            rosters.push(hours);
+        }
       });
 
-      //rosters = rosters.filter(holidays => holidays.uid == myUid);
-
-      for(var i = rosters.length -1; i >= 0 ; i--){
-         if(rosters[i].uid != myUid || rosters[i].uid == undefined){
-           console.log(rosters[i].uid);
-            rosters.splice(i,1);
-         } 
-      }
+      // for(var i = rosters.length -1; i >= 0; i--){
+      //   if(rosters[i].id != myUid){
+      //     rosters.splice(i,1);
+      //   }
+      // }
       
       refresh.next();
     });
   }
 
-  clickedDate: Date;
+  loadUserHolidays(rosters,refresh,myUid){
+    return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+
+        if(doc.data().uid == myUid){
+        rosters.push(doc.data());
+        }
+      });
+
+      //rosters = rosters.filter(holidays => holidays.uid == myUid);
+
+      // for(var i = rosters.length -1; i >= 0 ; i--){
+      //    if(rosters[i].uid != myUid || rosters[i].uid == undefined){
+      //      console.log(rosters[i].uid);
+      //       rosters.splice(i,1);
+      //    } 
+      // }
+      
+      refresh.next();
+    });
+  }
+
+  
 }
 

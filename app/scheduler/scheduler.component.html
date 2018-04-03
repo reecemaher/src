@@ -1,0 +1,10 @@
+<div>
+    <input type="text" [ngModel]='filter.text' (ngModelChange)='changeText($event)'/>
+</div>
+
+<div class='w-100 flex'>
+    <daypilot-navigator class="w-15" [config]="navigatorConfig" (dateChange)="changeDate()" #navigator></daypilot-navigator>
+    <daypilot-scheduler class="w-80" [config]="config" [events]="events" #scheduler></daypilot-scheduler>
+    <app-create #create (close)="createClosed($event)"></app-create>
+    <app-edit #edit (close)="editClosed($event)"></app-edit>
+</div>

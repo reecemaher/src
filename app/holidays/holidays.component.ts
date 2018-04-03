@@ -12,7 +12,7 @@ import { User} from '../core/user';
 import { colors } from '../calendar/colors';
 import { Subject } from 'rxjs/Subject';
 
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+//import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
 
 //import calendar header for changing month
@@ -77,7 +77,7 @@ export class HolidaysComponent implements OnInit {
 
   //user$: Observable<User>;
 
-    constructor(private modal: NgbModal,public auth: AuthService,private afs: AngularFirestore,private afAuth: AngularFireAuth) {
+    constructor(public auth: AuthService,private afs: AngularFirestore,private afAuth: AngularFireAuth) {
       //User data to be saved on new events (uid + department)
       this.auth.user$.subscribe(user=>{
         this.userId = user.uid;
@@ -208,15 +208,17 @@ export class HolidaysComponent implements OnInit {
 //loops through each holiday and pushes it into the array      
       return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
+          if(doc.data().department == userDepartment){
           holidays.push(doc.data());
+          }
         });
 
 //loops through the array and removes each index that doesnt match the current logged in users department        
-        for(var j =holidays.length -1; j >= 0; j--){
-          if(holidays[j].department != userDepartment){
-            holidays.splice(j,1);
-          }
-        }
+        // for(var j =holidays.length -1; j >= 0; j--){
+        //   if(holidays[j].department != userDepartment){
+        //     holidays.splice(j,1);
+        //   }
+        // }
         
         for(var i =0; i < holidays.length; i++){
           if(holidays[i].uid == userId){
@@ -300,7 +302,7 @@ export class HolidaysComponent implements OnInit {
 
     handleEvent(event: CalendarEvent){
       this.modalData = event;
-      this.modal.open(this.modalContent);
+     // this.modal.open(this.modalContent);
     }
 
     updateHoliday(event: CalendarEvent){

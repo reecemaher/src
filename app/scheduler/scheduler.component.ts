@@ -13,7 +13,13 @@ import { EditComponent } from "./edit/edit.component";
 @Component({
   selector: 'scheduler-component',
   template: `
- 
+ <div class='space'>
+ Filter : <input class='input' type='text' [ngModel]='filter.text' (ngModelChange)='changeText($event)'/>
+ Category : <select class='select' (ngModelChange)="changeCategory($event)" [ngModel]="filter.category">
+  <option *ngFor="let cat of categories" [ngValue]="cat.id">{{cat.name}}</option>
+  </select>
+ </div>
+
   <div class='w-100 flex'>
     <daypilot-navigator class="w-15" [config]="navigatorConfig" (dateChange)="changeDate()" #navigator></daypilot-navigator>
     <daypilot-scheduler class="w-80" [config]="config" [events]="events" #scheduler></daypilot-scheduler>
@@ -40,129 +46,83 @@ export class SchedulerComponent implements AfterViewInit {
   @ViewChild("scheduler") scheduler: DayPilot.Angular.Scheduler;
   days:number = 7;
   events: any[] = [];
-
-  // config: any = {
-  //   onTimeRangeSelected: args => {
-  //     // this.ds.saveHours(args);
-  //     // this.ds.createHours(args);
-  //     this.create.show(args);
-       
-  //   },
-  //   locale: "en-us",
-  //   viewType: "Resources",
-  //   columns: this.columns,
-  //   cellWidthSpec: "Auto",
-  //   crosshairType: "Header",
-  //   //timeHeaders: [{"groupBy":"Month"},{"groupBy":"Day","format":"d"}],
-  //   scale: "Day",
-  //   days: this.days,
-  //   startDate: DayPilot.Date.today().firstDayOfWeek(),
-  //   showNonBusiness: true,
-  //   businessBeginsHour: 9,
-  //   businessEndsHour: 23,
-  //   businessWeekends: false,
-  //   floatingEvents: true,
-  //   eventHeight: 60,
-  //   eventMovingStartEndEnabled: false,
-  //   eventResizingStartEndEnabled: false,
-  //   timeRangeSelectingStartEndEnabled: false,
-  //   groupConcurrentEvents: false,
-  //   eventStackingLineHeight: 100,
-  //   allowEventOverlap: false,
-  //   timeRangeSelectedHandling: "Enabled",
-
-  //   onEventClicked: args => {
-  //     this.edit.show(args.e,args.e.data.id);
-  //   },
-    
-
-  //   //this.ds.createHours(args),
-    
-  //   // function (args) {
-  //   //   var dp = this;
-  //   //   var d = this.ds;
-  //   //   DayPilot.Modal.prompt("Add hours:", "14.00-22.00").then(function(modal) {
-  //   //     dp.clearSelection();
-  //   //     if (!modal.result) { return; }
-
-  //   //     // dp.ds.saveHours(
-  //   //     //   args.start,
-  //   //     //   args.end,
-  //   //     //   args.resource,
-  //   //     //   args.resource,
-  //   //     //   modal.result);
-      
-  //   //     let e = {
-  //   //       start: args.start,
-  //   //       end: args.end,
-  //   //       id: args.resource,
-  //   //       resource: args.resource,
-  //   //       text: modal.result
-  //   //     }
-
-  //   //     dp.events.add(new DayPilot.Event(e));
-  //   //   });
-  //   // },
-  //   eventMoveHandling: "Update",
-  //   onEventMoved: args => {
-  //     console.log(args.newStart.value);
-  //     this.ds.updateHours(args,args.e.data.id);
-      
-  //   },
-    
-  //   // function (args) {
-  //   //   this.message("Event moved");
-  //   // },
-  //   eventResizeHandling: 'Disabled',
-  //   // "Update",
-  //   // onEventResized: function (args) {
-  //   //   this.message("Event resized");
-  //   // },
-  //   eventDeleteHandling: "Update",
-  //   onEventDeleted: args =>{
-  //     this.ds.deleteHours(args.e.data.id);
-  //   },
-  //   // onEventDeleted: function (args) {
-  //   //   this.message("Event deleted");
-  //   // },
-  //  // eventClickHandling: "Edit",
-  //   eventEditHandling: "Enabled",
-  //   onEventEdited: function (args) {
-  //     this.message("Event edited");
-  //   },
-  //   eventHoverHandling: "Disabled",
-  //   contextMenu: new DayPilot.Menu({
-  //     items: [
-  //       { text: "Delete", onClick: function(args) { var dp = args.source.calendar; dp.events.remove(args.source); } },
-  //       {text: "Edit", onClick: args => this.edit.show1(args.source)},
-
-  //     ]
-  //   }),
-  //   treeEnabled: true,
-  // };
+  categories: any[] = [];
 
   config: any = {
+    onTimeRangeSelected: args => {
+      this.create.show(args);
+       
+    },
+    locale: "en-us",
     viewType: "Resources",
-    timeHeaders : [
-      {groupBy: "Month", format: "MMMM yyyy"},
-      {groupBy: "Day", format: "d"}
-    ],
-    eventHeight: 40,
+    columns: this.columns,
+    cellWidthSpec: "Auto",
+    crosshairType: "Header",
+    //timeHeaders: [{"groupBy":"Month"},{"groupBy":"Day","format":"d"}],
     scale: "Day",
-    days: 31,
-    startDate: "2017-01-01",
-    contextMenu: new DayPilot.Menu({
-      items: [
-        { text: "Edit", onClick: args => this.edit.show1(args.source) },
-        ]
-    }),
+    days: this.days,
+    startDate: DayPilot.Date.today().firstDayOfWeek(),
+    showNonBusiness: true,
+    businessBeginsHour: 9,
+    businessEndsHour: 23,
+    businessWeekends: false,
+    floatingEvents: true,
+    eventHeight: 60,
+    eventMovingStartEndEnabled: false,
+    eventResizingStartEndEnabled: false,
+    timeRangeSelectingStartEndEnabled: false,
+    groupConcurrentEvents: false,
+    eventStackingLineHeight: 100,
+    allowEventOverlap: false,
+    timeRangeSelectedHandling: "Enabled",
+    onEventFilter: args => {
+      var params = args.filter;
+      if(params.text && args.e.text().toLowerCase().indexOf(params.text.toLowerCase()) < 0){
+        args.visible = false;
+      }
+      if(params.category !== "any" && args.e.data.category !== params.category){
+        args.visible = false;
+      }
+    },
     onEventClicked: args => {
       this.edit.show(args.e,args.e.data.id);
     },
-    onTimeRangeSelected: args => {
-      this.create.show(args);
+    
+    eventMoveHandling: "Update",
+    onEventMoved: args => {
+      console.log(args.newStart.value);
+      this.ds.updateHours(args,args.e.data.id);
+      
     },
-    treeEnabled:true
+    // function (args) {
+    //   this.message("Event moved");
+    // },
+    eventResizeHandling: 'Disabled',
+    // "Update",
+    // onEventResized: function (args) {
+    //   this.message("Event resized");
+    // },
+    eventDeleteHandling: "Update",
+    onEventDeleted: args =>{
+      this.ds.deleteHours(args.e.data.id);
+    },
+    // onEventDeleted: function (args) {
+    //   this.message("Event deleted");
+    // },
+   // eventClickHandling: "Edit",
+    eventEditHandling: "Enabled",
+    onEventEdited: function (args) {
+      this.message("Event edited");
+    },
+    eventHoverHandling: "Disabled",
+    contextMenu: new DayPilot.Menu({
+      items: [
+        { text: "Delete", onClick: function(args) { var dp = args.source.calendar; dp.events.remove(args.source); } },
+        {text: "Edit", onClick: args => this.edit.show(args.source,args.e.data.id)},
+
+      ]
+    }),
+    treeEnabled: true,
   };
 
   constructor(private ds: DataService, private cdr: ChangeDetectorRef) {
@@ -214,7 +174,9 @@ export class SchedulerComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.ds.getResources().subscribe(result => this.config.resources = result);
-
+    this.ds.getCategory().subscribe(result => {
+      this.categories = result;
+    })
     var from = this.scheduler.control.visibleStart();
     var to = this.scheduler.control.visibleEnd();
     this.ds.getEvents(from, to).subscribe(result => {
@@ -246,5 +208,32 @@ export class SchedulerComponent implements AfterViewInit {
       this.scheduler.control.message("Updated");
     }
   }
+
+  filter:any = {
+    text:''
+  };
+
+  changeText(val){
+    this.filter.text= val;
+    this.applyFilter();
+  }
+
+  changeShort(val){
+    this.filter.category = val;
+    this.applyFilter();
+  }
+
+  applyFilter(){
+    this.scheduler.control.events.filter(this.filter);
+  }
+
+  clearFilter(){
+    this.filter.category = "any";
+    this.filter.text = "";
+    this.applyFilter();
+    return false;
+  }
+
+
 }
 

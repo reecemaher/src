@@ -11,6 +11,7 @@ import { HolidaysComponent } from './holidays/holidays.component';
 import { AdminGuard } from './core/admin.guard';
 import { CanReadGuard } from './core/can-read.guard';
 import { AuthGuard } from './core/auth.guard';
+import { TestComponent } from './test/test.component';
 
 
 
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'content', component: SubscriberPageComponent, canActivate: [CanReadGuard] },
   { path: 'holidays', component: HolidaysComponent, canActivate: [CanReadGuard] },
   { path: 'secret', component: SuperSecretComponent, canActivate: [AdminGuard] },
+  { path: 'test', component: TestComponent, canActivate: [AdminGuard]},
   { path: '',pathMatch: 'full', redirectTo: 'form'}
 ];
 

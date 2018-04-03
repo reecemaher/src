@@ -5,17 +5,18 @@
         <div class="form-item">
           <input formControlName="name" type="text" placeholder="Event Name"> <span *ngIf="!form.controls.name.valid">Event name required</span>
         </div>
-        <div class="form-item">
+        <!-- <div class="form-item">
           <select formControlName="resource">
             <option *ngFor="let r of resources" [ngValue]="r.id">{{r.name}}</option>
           </select>
-        </div>
+        </div> -->
         <div class="form-item">
           <input formControlName="start" type="text" placeholder="Start"> <span *ngIf="!form.controls.start.valid">Invalid datetime</span>
         </div>
         <div class="form-item">
           <input formControlName="end" type="text" placeholder="End"> <span *ngIf="!form.controls.end.valid">Invalid datetime</span>
         </div>
+        <input formControlName="id" type="hidden" name='id'>
         <div class="form-item">
           <button (click)="submit()" [disabled]="!form.valid">Update</button>
           <button (click)="cancel()">Cancel</button>

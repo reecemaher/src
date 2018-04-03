@@ -22,36 +22,30 @@ export class DataService {
   holidaysCollection: AngularFirestoreCollection<requests>;
 
   resources: any[] = [
-    { name: "Group A", id: "GA", expanded: true, children: [
-      { name: "Resource 1", id: "R1"},
-      { name: "Resource 2", id: "R2"}
-    ]}
+    // { name: "Group A", id: "GA", expanded: true, children: [
+    //   { name: "Resource 1", id: "R1"},
+    //   { name: "Resource 2", id: "R2"}
+    // ]}
   ];
 
   events: any[] = [
    
-    {
-      color:'#FDF1BA',
-      end:'2018-03-25T22:00:00',
-      id: '4',
-      resource:'aKSLf2mHL5SCAtIJ9AXRqDVV21U2',
-      start:'2018-03-25T14:00:00',
-      text:'14.00-22.00'
-    }
   ];
+
+  categories:any[] = [];
 
   constructor(private http : HttpClient, public afs:AngularFirestore){
 
     this.departmentCollection = afs.collection('departments');
     this.departmentEvents = this.departmentCollection.valueChanges();
     this.eventCollection = afs.collection('departmentRosters');
-    this.getDepartments(this.resources);
+    this.getDepartments(this.resources,this.categories);
     this.buildEvent(this.events);
     this.getHolidays(this.events);
     //this.addDepartment('Fruit and Veg','06');
   }
 
-  getDepartments(resource){
+  getDepartments(resource,categories){
      this.departmentCollection.ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
         console.log(resource);
@@ -59,8 +53,10 @@ export class DataService {
         let did = doc.data().departmentId;
         let ex = doc.data().expanded;
         let emp = doc.data().employees;
-        let dep = { name: d, id: did,expanded:ex,children:emp}
+        let dep = { name: d, id: did,expanded:ex,children:emp};
+        let cat ={id:did, name:d};
         resource.push(dep);
+        categories.push(cat);
       })
     })
   }
@@ -132,6 +128,17 @@ export class DataService {
     
   }
 
+  editHours(hours){
+    let update={
+      start: hours.start,
+      end: hours.end,
+      text: hours.text,
+      resource: hours.resource
+    }
+
+    this.eventCollection.doc(hours.id).update(update);
+  }
+
   updateHours(hours,id){
     let updatedHours={
       start:hours.newStart.value,
@@ -171,23 +178,23 @@ export class DataService {
 
     // simulating an HTTP request
     return new Observable(observer => {
-      setTimeout(() => {
         observer.next(this.events);
-      }, 200);
     });
 
     // return this.http.get("/api/events?from=" + from.toString() + "&to=" + to.toString());
   }
 
+  getCategory(): Observable<any[]>{
+    return new Observable(observer => {
+      observer.next(this.categories);
+    })
+  }
+
   getResources(): Observable<any[]> {
   // return this.departmentEvents = this.eventCollection.valueChanges();
-    // simulating an HTTP request
-
-
+  
     return new Observable(observer => {
-      setTimeout(() => {
         observer.next(this.resources);
-      }, 200);
     });
 
     // return this.http.get("/api/resources");

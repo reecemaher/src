@@ -9,6 +9,7 @@ import { CreateComponent } from './create/create.component';
 import { EditComponent } from './edit/edit.component';
 
 
+
 @NgModule({
   imports:      [
     BrowserModule,
@@ -22,7 +23,7 @@ import { EditComponent } from './edit/edit.component';
     DayPilot.Angular.Modal,
     SchedulerComponent,
     CreateComponent,
-    EditComponent
+    EditComponent,
   ],
   exports:      [ SchedulerComponent ],
   providers:    [ DataService ]

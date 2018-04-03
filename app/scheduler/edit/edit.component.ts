@@ -26,7 +26,8 @@ export class EditComponent {
       name: ["", Validators.required],
       start: ["", this.dateTimeValidator(this.dateFormat)],
       end: ["", [Validators.required, this.dateTimeValidator(this.dateFormat)]],
-      resource: ["", Validators.required]
+      resource: ["", Validators.required],
+      id:[""]
     });
 
     this.ds.getResources().subscribe(result => this.resources = result);
@@ -38,23 +39,12 @@ export class EditComponent {
       start: ev.start().toString(this.dateFormat),
       end: ev.end().toString(this.dateFormat),
       name: ev.text(),
-      resource: ev.resource()
-      
+      resource: ev.resource(),
+      id: ev.id()
     });
     this.modal.show();
   }
 
-  show1(ev: DayPilot.Event) {
-    this.event = ev;
-    this.form.setValue({
-      start: ev.start().toString(this.dateFormat),
-      end: ev.end().toString(this.dateFormat),
-      name: ev.text(),
-      resource: ev.resource()
-      
-    });
-    this.modal.show();
-  }
 
   submit() {
     let data = this.form.getRawValue();
@@ -64,13 +54,44 @@ export class EditComponent {
     this.event.data.end = DayPilot.Date.parse(data.end, this.dateFormat);
     this.event.data.resource = data.resource;
     this.event.data.text = data.name;
+    this.event.data.id = data.id;
 
     this.ds.updateEvent(this.event).subscribe(result => {
       this.modal.hide(result);
     });
 
-    //this.ds.updateHours(data);
+    let params:any= {
+      start:  DayPilot.Date.parse(data.start, this.dateFormat).toString(),
+      end: DayPilot.Date.parse(data.end, this.dateFormat).toString(),
+      resource: data.resource,
+      text: data.name,
+      id: data.id
+    }
+
+    this.ds.editHours(params);
   }
+
+  // submit(){
+  //   let data = this.form.getRawValue();
+
+  //   let id = data.id;
+
+  //   let params: any = {
+  //     start: DayPilot.Date.parse(data.start, this.dateFormat).toString(),
+  //     end: DayPilot.Date.parse(data.end, this.dateFormat).toString(),
+  //     text: data.name,
+  //     resource: data.resource,
+  //     id: data.id
+      
+  //   };
+
+  //   this.ds.updateEvent(data).subscribe(result => {
+  //     //params.id = result.id;
+  //     this.modal.hide(result);
+  //   });
+
+  //   this.ds.updateHours(params,id);
+  //  }
 
   cancel() {
     this.modal.hide();

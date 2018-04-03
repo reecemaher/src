@@ -35,7 +35,6 @@ import { RostersService } from '../service/rosters.service';
 
 export class SuperSecretComponent implements OnInit {
   selected = 'All departments';
-  view: string = 'month'
   private calCol: AngularFirestoreCollection<any>;
   cal: Observable<any[]>;
   private usersCollection: AngularFirestoreCollection<User>;
@@ -46,7 +45,7 @@ export class SuperSecretComponent implements OnInit {
 
   
   
-  //view: string = 'month';
+  view: string = 'month';
   viewDate: Date = new Date();
    departments =[ 
       'Shopfloor',
