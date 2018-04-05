@@ -19,8 +19,8 @@ import { EditComponent } from "./edit/edit.component";
   <option *ngFor="let cat of categories" [ngValue]="cat.id">{{cat.name}}</option>
   </select>
  </div>
-
-  <div class='w-100 flex'>
+ 
+    <div class='w-100 flex'>
     <daypilot-navigator class="w-15" [config]="navigatorConfig" (dateChange)="changeDate()" #navigator></daypilot-navigator>
     <daypilot-scheduler class="w-80" [config]="config" [events]="events" #scheduler></daypilot-scheduler>
     <app-create #create (close)="createClosed($event)"></app-create>
@@ -47,6 +47,9 @@ export class SchedulerComponent implements AfterViewInit {
   days:number = 7;
   events: any[] = [];
   categories: any[] = [];
+
+  time = {hour: 13, minute: 30};
+  meridian = true;
 
   config: any = {
     onTimeRangeSelected: args => {
@@ -85,7 +88,7 @@ export class SchedulerComponent implements AfterViewInit {
       }
     },
     onEventClicked: args => {
-      this.edit.show(args.e,args.e.data.id);
+      this.edit.show(args.e);
     },
     
     eventMoveHandling: "Update",
@@ -118,7 +121,7 @@ export class SchedulerComponent implements AfterViewInit {
     contextMenu: new DayPilot.Menu({
       items: [
         { text: "Delete", onClick: function(args) { var dp = args.source.calendar; dp.events.remove(args.source); } },
-        {text: "Edit", onClick: args => this.edit.show(args.source,args.e.data.id)},
+        {text: "Edit", onClick: args => this.edit.show(args.source)},
 
       ]
     }),
@@ -127,6 +130,10 @@ export class SchedulerComponent implements AfterViewInit {
 
   constructor(private ds: DataService, private cdr: ChangeDetectorRef) {
   }
+
+  toggleMeridian() {
+    this.meridian = !this.meridian;
+}
 
   dateChange() {
     this.config.startDate = this.navigator.control.selectionStart;

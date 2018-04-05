@@ -14,7 +14,7 @@ export class UserLoginComponent implements OnInit {
   constructor(public auth: AuthService, public roster: RostersService) { }
 
   ngOnInit() {
-    this.roster.getRoster( this.roster.rosterView);
+   // this.roster.getRoster( this.roster.rosterView);
   }
 
 }

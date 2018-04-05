@@ -6,10 +6,13 @@ import { Rosters } from './rosters';
 
 @Injectable()
 export class RostersService  {
-  public rosterCollection: AngularFirestoreCollection<Roster>;
+  public rosterCollection: AngularFirestoreCollection<any>;
   public rosterDoc: AngularFirestoreDocument<Roster>;
-  rosterEvent: Observable<Roster>;
+  rosterEvent: Observable<any>;
   rosters$: Observable<Roster>;
+
+  private personalRosterCollection: AngularFirestoreCollection<any>;
+  private personalRoster: Observable<any>;
 
   public rosterView = [{title: 'test',
   start: new Date("2018-02-23T14:00:00.000Z"),
@@ -25,7 +28,8 @@ export class RostersService  {
      }
 
   constructor(private afs:AngularFirestore) {
-
+    this.personalRosterCollection = afs.collection('departmentRosters');
+    this.personalRoster = this.personalRosterCollection.valueChanges();
     
 }
 
@@ -48,13 +52,21 @@ export class RostersService  {
 // }
    
 
-getRoster(rosterView){
-   return  this.afs.collection('fullCalendar').ref.get().then(function(querySnapshot) {
-    querySnapshot.forEach(function(doc) {
-       rosterView.push(doc.data());
-       console.log(rosterView);
-    });
-});
+getPersonalRoster(array,id){
+  this.personalRoster.subscribe(data =>{
+    for(var i=data.length-1; i>= 0; i--){
+      if(data[i].resource != id){
+        data.splice(i,1);
+        array = data;
+      }
+    } })
+  
+//    return  this.afs.collection('fullCalendar').ref.get().then(function(querySnapshot) {
+//     querySnapshot.forEach(function(doc) {
+//        rosterView.push(doc.data());
+//        console.log(rosterView);
+//     });
+// });
 }
 
 // loadCalendar(calendarShopfloor){

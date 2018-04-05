@@ -46,10 +46,11 @@ import { CalendarHeaderComponent } from './calendar/calendar-header.component';
 import { HolidaysService } from './service/holidays.service';
 
 //ngbModal
-//import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 //scheduler
 import { SchedulerModule } from './scheduler/scheduler.module';
+
 
 
 @NgModule({
@@ -78,7 +79,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
     AngularFireAuthModule,
-   // NgbModalModule.forRoot(),
+    NgbModalModule.forRoot(),
     CalendarModule.forRoot(),
     DragAndDropModule,
     BrowserAnimationsModule,

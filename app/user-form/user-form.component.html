@@ -2,13 +2,8 @@
 <form [formGroup]="userForm"  *ngIf="newUser"  (ngSubmit)="signup()" class="">
 
   <h3>New User Signup</h3>
-  <p class="button is-small" (click)="toggleForm()">Already Registered?</p>
+  <p class="button" (click)="toggleForm()">Already Registered?</p>
   <hr>
-
-  <div>
-  <label class="f6 b db mb2" for="displayName">Display Name</label>
-  <input type="text" id="displayName" class="input" formControlName="displayName" required >
-  </div>      
 
   <label for="email">Email</label>
   <input type="email" id="email" class="input"
@@ -41,7 +36,7 @@
 <form [formGroup]="userForm"  *ngIf="!newUser"  (ngSubmit)="login()" >
 
   <h3>Existing User Login</h3>
-  <p class="btn button is-small" (click)="toggleForm()">New User?</p>
+  <p class="button" (click)="toggleForm()">New User?</p>
   <hr>
   <label for="email">Email</label>
   <input type="email" id="email" class="input"

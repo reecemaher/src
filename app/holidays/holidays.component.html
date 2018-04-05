@@ -11,7 +11,15 @@
   </div>
 </ng-template>
 
-<h4 > {{bookable}}</h4>
+<!-- <h4 > {{bookable}}</h4> -->
+<div *ngFor="let day of daysBookable | async">
+  Number of days bookable :
+  <input type="number" [(ngModel)]='day.bookableDays' #num>
+  <input type="submit" value="change" (click)="change(num.value)">
+  <p>Only {{day.bookableDays}} staff members may book the same day off</p>
+</div>
+
+
 
 <div class="ml3">
   <div class="w-100">

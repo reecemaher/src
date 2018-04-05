@@ -3,17 +3,38 @@
       <h1>Add Hours</h1>
       <form [formGroup]="form">
         <div class="form-item">
-          <input formControlName="name" type="text" placeholder="time"> <span *ngIf="!form.controls.name.valid">Event name required</span>
+          <input formControlName="name" class="input" type="text" placeholder="time"> <span class="red" *ngIf="!form.controls.name.valid">Event name required</span>
         </div>
         <div class="form-item">
-          <input formControlName="start" type="text" placeholder="Start"> <span *ngIf="!form.controls.start.valid">Invalid datetime</span>
+          <input formControlName="start" class="input" type="text" placeholder="Start"> <span class="red" *ngIf="!form.controls.start.valid">Invalid datetime</span>
+        </div>
+        <div class="flex">
+        <div class="fl w-50">
+          <label>Start</label>
+         <ngb-timepicker formControlName="timeStart" [(ngModel)]="defaultTime" [meridian]="meridian"></ngb-timepicker>
+        </div>
+         <div class="fr w-50">
+           <label>End</label>
+         <ngb-timepicker formControlName="timeEnd" [(ngModel)]="endTime" [meridian]="meridian"></ngb-timepicker>
+        </div>
+      </div>
+         <div class="form-group">
+            <div class="input-group">
+              <input  formControlName="date" class="form-control" placeholder="yyyy-mm-dd"
+                     name="dp" [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
+                  C
+                </button>
+              </div>
+            </div>
+          </div>
+        <div class="form-item">
+          <input formControlName="end" class="input" type="text" placeholder="End"> <span class="red" *ngIf="!form.controls.end.valid">Invalid datetime</span>
         </div>
         <div class="form-item">
-          <input formControlName="end" type="text" placeholder="End"> <span *ngIf="!form.controls.end.valid">Invalid datetime</span>
-        </div>
-        <div class="form-item">
-          <button (click)="submit()" [disabled]="!form.valid">Create</button>
-          <button (click)="cancel()">Cancel</button>
+          <button class="button" (click)="submit()" [disabled]="!form.valid">Create</button>
+          <button class="button" (click)="cancel()">Cancel</button>
         </div>
     </form>
     </div>

@@ -33,7 +33,7 @@ export class EditComponent {
     this.ds.getResources().subscribe(result => this.resources = result);
   }
 
-  show(ev: DayPilot.Event,id) {
+  show(ev: DayPilot.Event) {
     this.event = ev;
     this.form.setValue({
       start: ev.start().toString(this.dateFormat),

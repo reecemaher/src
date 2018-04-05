@@ -14,44 +14,70 @@ export class CreateComponent implements OnInit {
   @Output() close= new EventEmitter();
 
   form: FormGroup;
-  dateFormat = "dd/MM/yyyy h:mm tt";
+  dateFormat = "yyyy/MM/dd";
   time = "dd/MM/yyyy h:mm tt";
 
   resource:any[];
+
+  defaultTime = {hour: 14, minute: 0};
+  endTime = {hour: 22, minute: 0}
+  meridian = true;
+
+  
 
   constructor(private fb:FormBuilder, private ds: DataService) {
     this.form = this.fb.group({
       name:["", [Validators.required]],
       start:["", this.dateTimeValidator(this.dateFormat)],
       end:["",[Validators.required, this.dateTimeValidator(this.dateFormat)]],
-      resource: ["",Validators.required]
+      resource: ["",Validators.required],
+      timeStart:[""],
+      timeEnd:[""],
+      date:[""]
     });
     this.ds.getResources().subscribe(result => this.resource = result);
    }
 
+   toggleMeridian() {
+    this.meridian = !this.meridian;
+}
+
    show(args: any){
-     console.log('test');
+     let d = args.start.toString();
     args.name = "";
     this.form.setValue({
       start: args.start.toString(this.dateFormat),
-      end: args.end.toString(this.dateFormat),
+      end: args.start.toString(this.dateFormat),
       name: "",
-      resource: args.resource
+      resource: args.resource,
+      timeStart:this.defaultTime,
+      timeEnd:this.endTime,
+      date:args.start.toString(this.dateFormat)
     });
     this.modal.show();
    }
 
    submit(){
     let data = this.form.getRawValue();
+    let d = data.date;
+    let t = data.timeStart.hour;
+    let e = data.timeEnd.hour;
+    let hours = t - e;
+
+    let time = d + t;
+    
+    console.log(data.date);
+    console.log(t);
+    console.log(hours);
 
     let id = this.ds.afs.createId();
 
-    let params: CreateEventParams = {
+    let params: any = {
       start: DayPilot.Date.parse(data.start, this.dateFormat).toString(),
       end: DayPilot.Date.parse(data.end, this.dateFormat).toString(),
       text: data.name,
       resource: data.resource,
-      
+      department: data.department
     };
 
     this.ds.createHours(params,id).subscribe(result => {
@@ -59,7 +85,7 @@ export class CreateComponent implements OnInit {
       this.modal.hide(result);
     });
 
-    this.ds.saveHours(params,id);
+   // this.ds.saveHours(params,id);
    }
 
    cancel(){

@@ -48,14 +48,17 @@ export class HolidaysComponent implements OnInit {
   requestCollection: AngularFirestoreCollection<requests>;
   request: Observable<requests[]>;
 
+  bookableDays: AngularFirestoreCollection<any>;
+  daysBookable:Observable<any>;
+
 //Calendar default view (calender loads on the month view)
   view: string = 'month';
 
 //Constraints
   //Amount of days before booking is disabled
-  bookabledays: number = 2;
+  bookabledays:any;
   // If day is bookable 
-  bookable = true;
+  bookable = false;
 
   viewDate: Date = new Date();
   selectedMonthViewDay: CalendarMonthViewDay;
@@ -84,32 +87,33 @@ export class HolidaysComponent implements OnInit {
         this.userDisplayName = user.displayName;
         this.userDepartment = user.department;
         console.log(user.uid + ' ' +  user.displayName + ' ' + user.department);
-        this.loadhours(this.holidays,this.refresh,this.actions,this.userId,user.department);
+       // this.loadhours(this.holidays,this.refresh,this.actions,this.userId,user.department);
       })
       
       this.requestCollection = this.afs.collection<requests>('holidays');
+      this.request = this.requestCollection.valueChanges();
 
       this.request = this.requestCollection.valueChanges();
-      
+      this.bookableDays = this.afs.collection('bookableDays');
+      this.daysBookable = this.bookableDays.valueChanges();
+      this.daysBookable.subscribe(data =>{ this.bookabledays = data[0].bookableDays});
     }
 
     ngOnInit() {
-      
-
+      this.loadhours1();
      }
 
 
-//Function for handling incoming day off requests
+    //Function for handling incoming day off requests
     dayOffRequest(day: CalendarMonthViewDay, events : CalendarEvent[]){
       let newDay = day.toString();
       let book = this.bookable;
       console.log('b'+book);
 
       //Constraints ensure a valid date is requested(today or future date)
-      if(isFuture(newDay) || isToday(newDay) && book === true){     
+      if(isFuture(newDay) || isToday(newDay)){     
         day.cssClass = 'cal-day-booked';
         this.addEvent(day);
-        this.bookable = false;
         }
         else{
           alert("please select current or future date/ day has already been booked");
@@ -117,11 +121,11 @@ export class HolidaysComponent implements OnInit {
     }
 
 
-//Function to handle holiday requests
+    //Function to handle holiday requests
     weekOffRequest(day: CalendarMonthViewDay){
       let newDay = day.toString();
 
-//Constraints ensure a valid date is requested(today or future date)
+      //Constraints ensure a valid date is requested(today or future date)
       if(isFuture(newDay) || isToday(newDay)){
         this.addHoliday(day);
         this.bookable = false;
@@ -139,16 +143,20 @@ export class HolidaysComponent implements OnInit {
     //   this.selectedMonthViewDay = day;
     // }
 
-//Dropdown to disaply all events on the clicked date    
+    //Dropdown to disaply all events on the clicked date    
     activeDayIsOpen: boolean = true;
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-//Constraint to prevent multiple bookings on the same date      
-      if(events.length >= this.bookabledays){
-        this.bookable = true;
+    //Constraint to prevent multiple bookings on the same date      
+      if(events.length < this.bookabledays){
+        this.bookable = false;
         console.log(this.bookable);
       }
 
-//Checks to only open dropdown when the clicked date contains events
+      else{
+        this.bookable = true;
+      }
+
+      //Checks to only open dropdown when the clicked date contains events
       if (isSameMonth(date, this.viewDate)) {
         if (
           (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
@@ -160,7 +168,6 @@ export class HolidaysComponent implements OnInit {
         } else {
           this.activeDayIsOpen = true;
           console.log(events.length +' ' + this.bookable );
-          this.bookable = false;
           this.viewDate = date;
         }
       }
@@ -182,16 +189,16 @@ export class HolidaysComponent implements OnInit {
     refresh: Subject<any> = new Subject();
 
 
-//Delete an dedit icons for events    
+    //Delete an dedit icons for events    
     actions: CalendarEventAction[] = [
-//Calls a function to handle the edit request      
+    //Calls a function to handle the edit request      
       {
         label: '<i class="fa fa-fw fa-pencil"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
           this.handleEvent(event);
         }
       },
-//Deletes the correct event on the calendar and from the database      
+      //Deletes the correct event on the calendar and from the database      
       {
         label: '<i class="fa fa-fw fa-times"></i>',
         onClick: ({ event }: { event: CalendarEvent }): void => {
@@ -203,9 +210,9 @@ export class HolidaysComponent implements OnInit {
     ];
 
 
-//function to push objects into an array to be displayed on the calendar
+    //function to push objects into an array to be displayed on the calendar
     loadhours(holidays,refresh,actions,userId,userDepartment){ 
-//loops through each holiday and pushes it into the array      
+    //loops through each holiday and pushes it into the array      
       return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
           if(doc.data().department == userDepartment){
@@ -213,7 +220,7 @@ export class HolidaysComponent implements OnInit {
           }
         });
 
-//loops through the array and removes each index that doesnt match the current logged in users department        
+        //loops through the array and removes each index that doesnt match the current logged in users department        
         // for(var j =holidays.length -1; j >= 0; j--){
         //   if(holidays[j].department != userDepartment){
         //     holidays.splice(j,1);
@@ -230,8 +237,22 @@ export class HolidaysComponent implements OnInit {
     });
     }
 
-    
-
+    loadhours1(){ 
+      this.request.subscribe(data => {for(var i = data.length-1;i >= 0;i--){
+        if(data[i].department != this.userDepartment){
+          data.splice(i,1);
+          for(var j = 0; j < data.length; j++){
+            if(data[j].uid == this.userId){
+            data[j]['actions'] = this.actions;
+            data[j]['draggable'] = true;
+            this.holidays = data;
+            }
+          }
+        }
+      } 
+    });
+      this.refresh.next();  
+      }
 
     addEvent(day: CalendarMonthViewDay): void {
       var referalId = this.userId + day;
@@ -261,7 +282,7 @@ export class HolidaysComponent implements OnInit {
         
         this.holidays.push(newHolidays);
         // this.requestCollection.add(dbData).then(ref => referalId = ref.id);
-         this.requestCollection.doc(referalId).set(dbData);
+         this.requestCollection.doc(docId).set(dbData);
       this.refresh.next();
     }
 
@@ -293,7 +314,7 @@ export class HolidaysComponent implements OnInit {
       
       this.holidays.push(clientHol);
 
-      this.requestCollection.doc(referalId).set(serverHol);
+      this.requestCollection.doc(docId).set(serverHol);
       //this.loadhours(this.holidays,this.actions,this.refresh);
       this.refresh.next();
     }
@@ -333,6 +354,15 @@ export class HolidaysComponent implements OnInit {
       
     }
       
+    }
+
+    change(num){
+      let n : number = num;
+      this.bookabledays = n;
+      let days = {
+        bookableDays : n
+      }
+      this.bookableDays.doc('BS1ZbteQOLsFbRsYeFND').update(days);
     }
 
 }

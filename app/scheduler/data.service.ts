@@ -48,11 +48,11 @@ export class DataService {
   getDepartments(resource,categories){
      this.departmentCollection.ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
-        console.log(resource);
         let d = doc.data().department;
         let did = doc.data().departmentId;
         let ex = doc.data().expanded;
         let emp = doc.data().employees;
+       
         let dep = { name: d, id: did,expanded:ex,children:emp};
         let cat ={id:did, name:d};
         resource.push(dep);
@@ -87,13 +87,14 @@ export class DataService {
 
   }
 
-  createHours(data: CreateEventParams,id) {
+  createHours(data: any,id) {
     let e = {
       start: data.start,
       end: data.end,
       resource: data.resource,
       id: id,
-      text: data.text
+      text: data.text,
+      department:data.department
     };
 
     //this.events.push(e);
@@ -108,7 +109,8 @@ export class DataService {
       id:id,
       resource:hours.resource,
       text:hours.text,
-      color:'#3c78d8'
+      color:'#3c78d8',
+      department:hours.department
     }
     this.eventCollection.doc(id).set(newHours);
   }

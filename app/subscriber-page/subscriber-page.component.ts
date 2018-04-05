@@ -47,7 +47,7 @@ export class SubscriberPageComponent implements OnInit {
 
   ngOnInit() {
 
-    this.collegues = this.afs.collection<any>('rosters');
+    this.collegues = this.afs.collection<any>('departmentRosters');
 
     // this.collegues = this.afs.collection('users', ref => {
     //   return ref.where('Department','==', 'Shopfloor')
@@ -70,20 +70,51 @@ export class SubscriberPageComponent implements OnInit {
   }
 
   loadDepartmentRoster(departmentRoster,userDepartment,refresh){
-    return this.collegues.ref.get().then(function(querySnapshot) {
+    return this.afs.collection('departmentRosters').ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
-          departmentRoster.push(doc.data());
-        });
-
-        for(var i= departmentRoster.length -1; i >= 0 ;i--){
-          if(departmentRoster[i].department != userDepartment){
-            departmentRoster.splice(i,1);
-          }
+        let hours = {
+          title:doc.data().text,
+          start:new Date(doc.data().start),
+          end: new Date(doc.data().end),
+          id: doc.data().resource,
+          color: colors.yellow
         }
-
-        refresh.next();
-
+        console.log(departmentRoster);
+          if(doc.data().department == userDepartment){
+            departmentRoster.push(hours);
+        }
       });
+      refresh.next();
+    });
+    // return this.collegues.ref.get().then(function(querySnapshot) {
+    //   querySnapshot.forEach(function(doc){
+
+    //     let roster = {
+    //       start:new Date(doc.data().start),
+    //       end: new Date(doc.data().end),
+    //       title:doc.data().text,
+    //       color:{
+    //         primary: '#e3bc08',
+    //         secondary: '#FDF1BA'
+    //       },
+    //     }
+    //     console.log(departmentRoster);
+
+    //     if(doc.data().department == userDepartment){
+    //       departmentRoster.push(roster);
+    //       console.log(departmentRoster);
+    //     }
+    //     });
+
+    //     // for(var i= departmentRoster.length -1; i >= 0 ;i--){
+    //     //   if(departmentRoster[i].department != userDepartment){
+    //     //     departmentRoster.splice(i,1);
+    //     //   }
+    //     // }
+
+    //     refresh.next();
+
+    //   });
   }
 
     view: string = 'month';

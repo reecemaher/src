@@ -7,6 +7,8 @@ import {DayPilot} from "daypilot-pro-angular";
 import {HttpClientModule} from "@angular/common/http";
 import { CreateComponent } from './create/create.component';
 import { EditComponent } from './edit/edit.component';
+import {SidebarModule} from '../sidebar/sidebar.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 
@@ -16,6 +18,8 @@ import { EditComponent } from './edit/edit.component';
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,
+    SidebarModule,
+    NgbModule.forRoot()
   ],
   declarations: [
     DayPilot.Angular.Scheduler,

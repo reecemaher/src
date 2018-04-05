@@ -20,6 +20,9 @@ import { Subject } from 'rxjs/Subject';
 import { AngularFirestore,AngularFirestoreCollection,AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Roster } from './roster';
 
+//service
+import {RostersService} from '../service/rosters.service';
+
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 @Component({
@@ -45,12 +48,13 @@ export class MyCalendarComponent implements OnInit {
   //test user id
   myUid;
 
-  constructor(public auth: AuthService,private afs: AngularFirestore) { 
+  constructor(public auth: AuthService,private afs: AngularFirestore,private service:RostersService) { 
     this.auth.user$.subscribe(user=>{
       this.myUid = user.uid;
       //this.userDisplayName = user.displayName;
       console.log(user.uid);
-      this.loadRoster(this.rosters,this.refresh,this.myUid);
+      this.service.getPersonalRoster(this.rosters,user.uid);
+      //this.loadRoster(this.rosters,this.refresh,this.myUid);
       this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
       this.loadHours(this.rosters,this.refresh,this.myUid);
     })
