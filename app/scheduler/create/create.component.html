@@ -6,6 +6,11 @@
           <input formControlName="name" class="input" type="text" placeholder="time"> <span class="red" *ngIf="!form.controls.name.valid">Event name required</span>
         </div>
         <div class="form-item">
+            <select formControlName="resource">
+              <option *ngFor="let r of resources" [ngValue]="r.name">{{r.name}}</option>
+            </select>
+          </div>
+        <div class="form-item">
           <input formControlName="start" class="input" type="text" placeholder="Start"> <span class="red" *ngIf="!form.controls.start.valid">Invalid datetime</span>
         </div>
         <div class="flex">

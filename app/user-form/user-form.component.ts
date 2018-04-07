@@ -48,10 +48,6 @@ export class UserFormComponent implements OnInit {
     this.auth.emailSignUp(this.userForm.value['email'], this.userForm.value['password']);
   }
 
-  addName(){
-    this.auth.displayName(this.userForm.value['displayName']);
-  }
-
   login() {
     this.auth.emailLogin(this.userForm.value['email'], this.userForm.value['password']);
   }
@@ -73,7 +69,8 @@ export class UserFormComponent implements OnInit {
         Validators.maxLength(25),
       ]],
     });
-
+    //checks password to display coorect info (eg requires 1 letter,1 number and at least 4 chars
+    // if 1 number is entered then the error message will read password requires 1 letter and at least 4 chars)
     this.userForm.valueChanges.subscribe((data) => this.onValueChanged(data));
     this.onValueChanged(); // reset validation messages
   }

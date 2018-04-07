@@ -17,7 +17,7 @@ export class CreateComponent implements OnInit {
   dateFormat = "yyyy/MM/dd";
   time = "dd/MM/yyyy h:mm tt";
 
-  resource:any[];
+  resources:any[];
 
   defaultTime = {hour: 14, minute: 0};
   endTime = {hour: 22, minute: 0}
@@ -35,7 +35,7 @@ export class CreateComponent implements OnInit {
       timeEnd:[""],
       date:[""]
     });
-    this.ds.getResources().subscribe(result => this.resource = result);
+    this.ds.getResources().subscribe(result => {this.resources = result;console.log(this.resources)});
    }
 
    toggleMeridian() {
@@ -71,13 +71,13 @@ export class CreateComponent implements OnInit {
     console.log(hours);
 
     let id = this.ds.afs.createId();
-
+    console.log(data.resource);
     let params: any = {
       start: DayPilot.Date.parse(data.start, this.dateFormat).toString(),
       end: DayPilot.Date.parse(data.end, this.dateFormat).toString(),
       text: data.name,
       resource: data.resource,
-      department: data.department
+      department: data.resource.name
     };
 
     this.ds.createHours(params,id).subscribe(result => {
@@ -85,7 +85,7 @@ export class CreateComponent implements OnInit {
       this.modal.hide(result);
     });
 
-   // this.ds.saveHours(params,id);
+    this.ds.saveHours(params,id);
    }
 
    cancel(){

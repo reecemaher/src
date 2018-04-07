@@ -3,6 +3,7 @@ import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument 
 import { Observable } from 'rxjs/Observable'
 
 import {  CalendarEvent,CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
+///                   date functions            ////
 import {
   startOfDay,
   endOfDay,
@@ -19,7 +20,6 @@ import {
 import { Subject } from 'rxjs/Subject';
 import { colors } from '../calendar/colors';
 import { User } from '../core/user';
-import { rosters } from './dbTest';
 import { forEach } from '@angular/router/src/utils/collection';
 import {CalendarComponent} from "ap-angular2-fullcalendar/src/calendar/calendar";
 import { RostersService } from '../service/rosters.service';
@@ -27,6 +27,7 @@ import { RostersService } from '../service/rosters.service';
 //modal
 import { NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import { FormGroup, FormBuilder } from '@angular/forms';
+
 import { merge } from 'rxjs/operators';
 
 @Component({
@@ -39,15 +40,20 @@ import { merge } from 'rxjs/operators';
 
 
 export class SuperSecretComponent implements OnInit {
+  //
   selected = 'All departments';
+
   private calCol: AngularFirestoreCollection<any>;
   cal: Observable<any[]>;
+
+  //access to users in the database
   private usersCollection: AngularFirestoreCollection<User>;
   users: Observable<User[]>;
 
   private departmentCal: AngularFirestoreCollection<any>;
   //departmentPbs: Observable<any>;
 
+  //departments saved in the database
   private deprartments:AngularFirestoreCollection<any>;
   private $departments:Observable<any>;
   private d:Observable<any>;
@@ -64,21 +70,8 @@ export class SuperSecretComponent implements OnInit {
   viewDate: Date = new Date();
    departments =[];
 
-   days =[
-     'Monday',
-     'Tuesday',
-     'Wednsday',
-     'Thursday',
-     'Friday',
-     'Saturday',
-     'Sunday'
-   ]
-
-
-   rostersView :Object[] = [];
-
   constructor(private afs: AngularFirestore,private roster: RostersService,private modalService: NgbModal,private fb: FormBuilder) {
-
+    //setting up form for changing users data
       this.form = this.fb.group({
         email: [""],
         displayName:[""],
@@ -86,10 +79,12 @@ export class SuperSecretComponent implements OnInit {
         id:[""]
       });
 
+      //setting up form for adding departments
       this.newDepartment = this.fb.group({
        department:[""]
       });
 
+    ////                  load in users data          /////
     this.usersCollection = this.afs.collection<User>('users');
     this.users = this.usersCollection.valueChanges();
 
@@ -106,6 +101,8 @@ export class SuperSecretComponent implements OnInit {
     // });
    }
 
+   ////             open modal that conatains a form to update user data, populate the fileds with the        ////
+   ////             clicked on users data         /////
    open(content,user) {
      this.form.setValue({
        email:user.email,
@@ -120,6 +117,7 @@ export class SuperSecretComponent implements OnInit {
     });
   }
 
+  ////      open modal for form to create new department    ////
   createDepartmentModal(newD) {
    this.modalService.open(newD).result.then((result) => {
      this.closeResult = `Closed with: ${result}`;
@@ -138,8 +136,10 @@ export class SuperSecretComponent implements OnInit {
     }
   }
 
-  updateUser(employees){
+  ////  update the users data   ////
+  updateUser(){
     let data = this.form.getRawValue();
+
     let update = {
       email:data.email,
       displayName: data.displayName,
@@ -147,21 +147,14 @@ export class SuperSecretComponent implements OnInit {
       uid:data.id
     }
 
-    this.departmentCal.ref.get().then(function(querySnapshot) {
-      querySnapshot.forEach(function(doc) {
-        let emp = doc.data().employees;
-        employees.push(doc.data());
-      });
-    });
-
     this.usersCollection.doc(data.id).update(data);
-    let d = this.deprartments.ref.where('department', '==' , data.department).get();
-    d.then(() => {
-    })
 
-    this.deprartments.doc('a0LyQOYvz0UGOe7hUHwf').set({employees:[{
+    ////    attempt to update department to hold the users info for acheduling acsess    ////
+    ////    firestore does not allow you to push to an array so its currently overwrites the array     ////
+    this.deprartments.doc(data.department).set({children:[{
       name:data.displayName,
-      id: data.id
+      id: data.id,
+      department:data.department
     }]},{merge:true})
   }
 
@@ -196,21 +189,24 @@ export class SuperSecretComponent implements OnInit {
       });
   }
 
+  ////    Adds a new department which can imedialtly be assigned to a employee/user     ////
   addDepartment(){
     let data = this.newDepartment.getRawValue();
     let department = data.department;
-    let id = this.afs.createId();
+    let id = data.department;
     let departmentId = this.afs.createId();
     let employees = [{
       id:"",
-      name:""
+      name:"",
+      department:data.department
     }];
 
     let newDepartment = {
-      department: department,
-      departmentId: departmentId,
-      id: id,
-      employees: employees
+      name: department,
+      id: departmentId,
+      //id: id,
+      children: employees,
+      expanded:false
     }
 
     this.deprartments.doc(id).set(newDepartment);

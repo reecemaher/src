@@ -8,7 +8,7 @@ import { tap, map, take } from 'rxjs/operators';
 export class AdminGuard implements CanActivate {
 
   constructor(private auth: AuthService) {}
-
+  //auth guard for managers
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> {

@@ -24,49 +24,61 @@ import {
 })
 export class SubscriberPageComponent implements OnInit {
 
-  postRef;
-  post$;
-  user;
-  userDepartment;
-  myUid;
   refresh: Subject<any> = new Subject();
+  //array to hold rosters
   departmentRoster: Object[] =[];
-
+  //load in all work hours
   public collegues : AngularFirestoreCollection<any>;
   public collegues$: Observable<any>;
 
   constructor(private afs: AngularFirestore, public auth: AuthService) { 
-    this.auth.user$.subscribe(user=>{
-      this.myUid = user.uid;
-      this.userDepartment = user.department;
-      //this.userDisplayName = user.displayName;
-      console.log(user.uid + ' ' + user.department);
-      this.loadDepartmentRoster(this.departmentRoster,this.userDepartment,this.refresh);
-    })
+    //load logged in user data
+    auth.loggedInUser();
+    //load all rosters from db
+    this.collegues = this.afs.collection<any>('departmentRosters');
+    this.collegues$ = this.collegues.valueChanges();
+    this.loadRoster();
+    //function to populate array with rosters
+    //this.loadDepartmentRoster(this.departmentRoster,this.auth.userDepartment, this.refresh);
   }
 
   ngOnInit() {
 
-    this.collegues = this.afs.collection<any>('departmentRosters');
-
-    // this.collegues = this.afs.collection('users', ref => {
-    //   return ref.where('Department','==', 'Shopfloor')
-    // });
-
-    this.collegues$ = this.collegues.valueChanges();
-
   }
 
-  editPost() {
-   // this.postRef.update({ title: 'Info has been edited'})
-    //this.postRef.update({ {Department.shopfloor.Monday.hours: '17.00 - 22.00'} })
-   // this.postRef.update({ Department : {checkouts : { Monday: { name: 'lorcan' , hours: '12.00-16.00'}}}})
-    this.postRef.update({ content: 'late'})
-  }
+  //loading rosters as observable(errors as the scheduler saves dates as string while this calendar requires javascript dates)
+  loadRoster(){
+    this.collegues$.subscribe(data => { 
+      for(var i = data.length -1; i > 0; i--){
+        console.log(data[i].department);
+        if(data[i].department != this.auth.userDepartment){
+          data.splice(i,1);
+        }
 
+        else{
+          let hours = {
+            title:data[i].text,
+            start:new Date(data[i].start),
+            end: new Date(data[i].end),
+            id: data[i].resource,
+            color: colors.yellow
+          }
 
-  deletePost() {
-    this.postRef.update({ content: ''})
+          data.push(hours);
+          
+       }
+
+        // else{
+        //   data[i].text = title:data[i].text;
+        //   data[i].start = new Date(data[i].start);
+        //   data[i].end = new Date(data[i].end);
+        //   data[i].color = colors.yellow;
+        //   this.departmentRoster = data;
+        // }
+      }
+      this.departmentRoster = data;
+      this.refresh.next();
+    })
   }
 
   loadDepartmentRoster(departmentRoster,userDepartment,refresh){
@@ -79,42 +91,12 @@ export class SubscriberPageComponent implements OnInit {
           id: doc.data().resource,
           color: colors.yellow
         }
-        console.log(departmentRoster);
           if(doc.data().department == userDepartment){
             departmentRoster.push(hours);
         }
       });
       refresh.next();
     });
-    // return this.collegues.ref.get().then(function(querySnapshot) {
-    //   querySnapshot.forEach(function(doc){
-
-    //     let roster = {
-    //       start:new Date(doc.data().start),
-    //       end: new Date(doc.data().end),
-    //       title:doc.data().text,
-    //       color:{
-    //         primary: '#e3bc08',
-    //         secondary: '#FDF1BA'
-    //       },
-    //     }
-    //     console.log(departmentRoster);
-
-    //     if(doc.data().department == userDepartment){
-    //       departmentRoster.push(roster);
-    //       console.log(departmentRoster);
-    //     }
-    //     });
-
-    //     // for(var i= departmentRoster.length -1; i >= 0 ;i--){
-    //     //   if(departmentRoster[i].department != userDepartment){
-    //     //     departmentRoster.splice(i,1);
-    //     //   }
-    //     // }
-
-    //     refresh.next();
-
-    //   });
   }
 
     view: string = 'month';

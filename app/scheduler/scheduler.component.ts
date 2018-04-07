@@ -52,9 +52,9 @@ export class SchedulerComponent implements AfterViewInit {
   meridian = true;
 
   config: any = {
-    onTimeRangeSelected: args => {
+    onTimeRangeSelected: args => { 
       this.create.show(args);
-       
+      console.log(args); 
     },
     locale: "en-us",
     viewType: "Resources",
@@ -85,6 +85,7 @@ export class SchedulerComponent implements AfterViewInit {
       }
       if(params.category !== "any" && args.e.data.category !== params.category){
         args.visible = false;
+        
       }
     },
     onEventClicked: args => {
@@ -180,7 +181,7 @@ export class SchedulerComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.ds.getResources().subscribe(result => this.config.resources = result);
+    this.ds.getResources().subscribe(result => {this.config.resources = result; console.log(result);});
     this.ds.getCategory().subscribe(result => {
       this.categories = result;
     })
@@ -188,6 +189,7 @@ export class SchedulerComponent implements AfterViewInit {
     var to = this.scheduler.control.visibleEnd();
     this.ds.getEvents(from, to).subscribe(result => {
       this.events = result;
+      console.log(this.events);
     });
   }
 
@@ -197,9 +199,9 @@ export class SchedulerComponent implements AfterViewInit {
   }
 
   loadResources(): void {
-    this.ds.getResources().subscribe(result => {
-      this.config.resources = result;
-    });
+     this.ds.getResources().subscribe(result => {
+       this.config.resources = result;
+      });
   }
 
   createClosed(args) {

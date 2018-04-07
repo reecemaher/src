@@ -8,7 +8,7 @@ import { tap, map, take } from 'rxjs/operators';
 export class CanReadGuard implements CanActivate {
 
   constructor(private auth: AuthService) {}
-
+  //read guard to check if the user is able to view the content
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> {

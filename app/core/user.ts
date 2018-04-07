@@ -1,4 +1,4 @@
-
+//User interfaces
 export interface Roles { 
     subscriber?: boolean;
     editor?: boolean;

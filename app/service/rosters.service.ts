@@ -59,15 +59,10 @@ getPersonalRoster(array,id){
         data.splice(i,1);
         array = data;
       }
-    } })
-  
-//    return  this.afs.collection('fullCalendar').ref.get().then(function(querySnapshot) {
-//     querySnapshot.forEach(function(doc) {
-//        rosterView.push(doc.data());
-//        console.log(rosterView);
-//     });
-// });
+    } 
+  })
 }
+
 
 // loadCalendar(calendarShopfloor){
     

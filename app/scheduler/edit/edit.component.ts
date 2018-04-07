@@ -30,7 +30,7 @@ export class EditComponent {
       id:[""]
     });
 
-    this.ds.getResources().subscribe(result => this.resources = result);
+    this.ds.getResources().subscribe(result => {this.resources = result; console.log(this.resources)});
   }
 
   show(ev: DayPilot.Event) {

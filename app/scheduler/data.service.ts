@@ -5,12 +5,14 @@ import {HttpClient} from "@angular/common/http";
 import { AngularFirestoreCollection, AngularFirestore } from "angularfire2/firestore";
 import { User } from '../core/user';
 import { requests} from '../holidays/requests';
+import { forEach } from "@angular/router/src/utils/collection";
 
 export interface CreateEventParams {
   start: string;
   end: string;
   text: string;
   resource: string | number;
+  department: string;
 }
 
 @Injectable()
@@ -18,6 +20,7 @@ export class DataService {
 
   departmentCollection: AngularFirestoreCollection<any>;
   departmentEvents: Observable<any>;
+  departments: Observable<any>;
   eventCollection: AngularFirestoreCollection<any>;
   holidaysCollection: AngularFirestoreCollection<requests>;
 
@@ -37,28 +40,46 @@ export class DataService {
   constructor(private http : HttpClient, public afs:AngularFirestore){
 
     this.departmentCollection = afs.collection('departments');
+    this.departments = this.departmentCollection.valueChanges();
     this.departmentEvents = this.departmentCollection.valueChanges();
     this.eventCollection = afs.collection('departmentRosters');
-    this.getDepartments(this.resources,this.categories);
+    //this.getDepartments();
     this.buildEvent(this.events);
     this.getHolidays(this.events);
     //this.addDepartment('Fruit and Veg','06');
   }
 
-  getDepartments(resource,categories){
-     this.departmentCollection.ref.get().then(function(querySnapshot){
-      querySnapshot.forEach(function(doc){
-        let d = doc.data().department;
-        let did = doc.data().departmentId;
-        let ex = doc.data().expanded;
-        let emp = doc.data().employees;
+  getDepartments(){
+    return this.departments.subscribe(data => { this.resources = data});
+    //this.departments.subscribe(data => { console.log( data)});
+
+    // this.departments.subscribe(data => { 
+    //   for(var i = 0; i < data.length; i++){
+    //     let d = data[i].name;
+    //     let did = data[i].id;
+    //     let ex = data[i].expanded;
+    //     let emp = data[i].children;
+    //     let dep = { expanded:ex,id: did,children:emp,name: d};
+    //     resource.push(dep);
+    //     console.log(resource);
+    //   }
+    // });
+
+    //this.departments.subscribe(data => console.log(data));
+   
+    //  this.departmentCollection.ref.get().then(function(querySnapshot){
+    //   querySnapshot.forEach(function(doc){
+    //     let d = doc.data().department;
+    //     let did = doc.data().departmentId;
+    //     let ex = doc.data().expanded;
+    //     let emp = doc.data().employees;
        
-        let dep = { name: d, id: did,expanded:ex,children:emp};
-        let cat ={id:did, name:d};
-        resource.push(dep);
-        categories.push(cat);
-      })
-    })
+    //     let dep = { name: d, id: did,expanded:ex,children:emp};
+    //     let cat ={id:did, name:d};
+    //     resource.push(dep);
+    //     categories.push(cat);
+    //   })
+    // })
   }
 
   buildEvent(event){
@@ -87,7 +108,7 @@ export class DataService {
 
   }
 
-  createHours(data: any,id) {
+  createHours(data: CreateEventParams,id) {
     let e = {
       start: data.start,
       end: data.end,
@@ -110,7 +131,7 @@ export class DataService {
       resource:hours.resource,
       text:hours.text,
       color:'#3c78d8',
-      department:hours.department
+     // department:hours.department
     }
     this.eventCollection.doc(id).set(newHours);
   }
@@ -150,8 +171,6 @@ export class DataService {
   }
 
   updateEvent(data: DayPilot.Event): Observable<any> {
-    console.log("Updating event: " + data.text());
-    console.log(data);
     return Observable.of({result: "OK"});
   }
 
@@ -193,12 +212,11 @@ export class DataService {
   }
 
   getResources(): Observable<any[]> {
-  // return this.departmentEvents = this.eventCollection.valueChanges();
-  
-    return new Observable(observer => {
-        observer.next(this.resources);
-    });
+    // return new Observable(observer => {
+    //     observer.next(this.resources);
+    // });
 
+    return this.departments;
     // return this.http.get("/api/resources");
   }
 

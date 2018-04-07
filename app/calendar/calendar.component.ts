@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy,OnInit } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../core/auth.service'; 
 import { Observable } from 'rxjs/Observable';
+//date functions
 import {
   startOfDay,
   endOfDay,
@@ -23,8 +24,6 @@ import { Roster } from './roster';
 //service
 import {RostersService} from '../service/rosters.service';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/do';
 @Component({
   selector: 'calendar',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,39 +36,28 @@ export class MyCalendarComponent implements OnInit {
   sheduleCollection: AngularFirestoreCollection<any>;
 
   rosterCollection: AngularFirestoreCollection<Roster>;
-  rosterDoc: AngularFirestoreDocument<Roster>;
   rosterEvent: Observable<Roster>;
-  rosters$: Observable<Roster[]>;
+  rosters$: Observable<any[]>;
   snapshot: any;
-
+  //array which holds events to be loaded onto the calendar
   rosters:Object[] = [] ;
+  //holds date that is clicked on
   clickedDate: Date;
 
-  //test user id
-  myUid;
-
   constructor(public auth: AuthService,private afs: AngularFirestore,private service:RostersService) { 
-    this.auth.user$.subscribe(user=>{
-      this.myUid = user.uid;
-      //this.userDisplayName = user.displayName;
-      console.log(user.uid);
-      this.service.getPersonalRoster(this.rosters,user.uid);
-      //this.loadRoster(this.rosters,this.refresh,this.myUid);
-      this.loadUserHolidays(this.rosters,this.refresh,this.myUid);
-      this.loadHours(this.rosters,this.refresh,this.myUid);
-    })
+    //load current user details
+    this.auth.loggedInUser();
+    //load all work hours
+    this.rosterCollection = this.afs.collection('departmentRosters');
+    this.rosters$ = this.rosterCollection.valueChanges();
+    console.log(this.auth.userId);
+    //load current users works hours and holidays onto the calendar
+    this.loadUserHolidays(this.rosters,this.refresh,this.auth.userId);
+    //this.loadHours(this.rosters,this.refresh,this.auth.userId);
+    this.loadRoster();
     }
 
   ngOnInit(){
-    this.rosterCollection = this.afs.collection('test');
-    this.rosters$ = this.rosterCollection.valueChanges()
-    this.snapshot = this.rosterCollection.snapshotChanges()
-    .map(arr => {
-      console.log(arr)
-      arr.map(snap => snap.payload.doc.data())
-    });
-
-    this.sheduleCollection = this.afs.collection('DepartmentRosters');
     }
     
   view: string = 'month';
@@ -99,31 +87,58 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     }
   }
 
-
-  loadRoster(rosters,refresh,myUid){
-      return  this.afs.collection('rosters').ref.get().then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-
-          if(doc.data().uid == myUid){
-          rosters.push(doc.data());
-          }
-        });
-
-        //rosters = rosters.filter(hours => hours.uid ==  myUid);
-
-        for(var i = rosters.length -1; i >= 0 ; i--){
-          //console.log(rosters[i].uid);
-           if(rosters[i].uid != myUid){
-             //console.log(rosters[i].uid);
-              rosters.splice(i,1);
-           } 
+    //loads currents users work hours
+  loadRoster(){
+    this.rosters$.subscribe(data => {
+      //removes any hours from the database that dont match the users id
+      for(var i = data.length - 1; i > 0; i--){
+        if(data[i].resource != this.auth.userId){
+          data.splice(i,1);
         }
-       
 
-        refresh.next();
-    });
+        //converts users hours into a readable format for the calendar
+        else{
+          let hours = {
+            title:data[i].text,
+            start:new Date(data[i].start),
+            end: new Date(data[i].end),
+            id: data[i].resource,
+            color: colors.yellow
+          }
+          
+          this.rosters.push(hours);
+        }
+      }
+    })
   }
 
+
+  // loadRoster(rosters,refresh,myUid){
+  //     return  this.afs.collection('rosters').ref.get().then(function(querySnapshot) {
+  //       querySnapshot.forEach(function(doc) {
+
+  //         if(doc.data().uid == myUid){
+  //         rosters.push(doc.data());
+  //         }
+  //       });
+
+  //       //rosters = rosters.filter(hours => hours.uid ==  myUid);
+
+  //       for(var i = rosters.length -1; i >= 0 ; i--){
+  //         //console.log(rosters[i].uid);
+  //          if(rosters[i].uid != myUid){
+  //            //console.log(rosters[i].uid);
+  //             rosters.splice(i,1);
+  //          } 
+  //       }
+       
+
+  //       refresh.next();
+  //   });
+  // }
+
+  
+// hours not loaded asyncronously
   loadHours(rosters,refresh,myUid){
     return this.afs.collection('departmentRosters').ref.get().then(function(querySnapshot){
       querySnapshot.forEach(function(doc){
@@ -150,6 +165,28 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     });
   }
 
+  //loads in holidays and removes any that dont match the current users id
+  //since this page requires both holidays and work hours they are manually pushed into an array
+  //when the data detects a change in will add all the holidays again, so holidays with unique ids and pushed
+  asyncLoadUserHolidays(){
+    this.rosters$.subscribe(data => {
+      for(var i = data.length -1; i >= 0; i--){
+        if(data[i].uid != this.auth.userId){
+          data.splice(i,1);
+        }
+
+        else{
+          for(var i =0; i > this.rosters.length; i++){
+            //if(this.rosters[i].id != data[i].id){
+            this.rosters.push(data[i]);
+           // }
+          }
+        }
+      }
+    })
+  }
+
+  //holidays added to the array but not async
   loadUserHolidays(rosters,refresh,myUid){
     return  this.afs.collection('holidays').ref.get().then(function(querySnapshot) {
       querySnapshot.forEach(function(doc) {
@@ -158,15 +195,6 @@ dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
         rosters.push(doc.data());
         }
       });
-
-      //rosters = rosters.filter(holidays => holidays.uid == myUid);
-
-      // for(var i = rosters.length -1; i >= 0 ; i--){
-      //    if(rosters[i].uid != myUid || rosters[i].uid == undefined){
-      //      console.log(rosters[i].uid);
-      //       rosters.splice(i,1);
-      //    } 
-      // }
       
       refresh.next();
     });

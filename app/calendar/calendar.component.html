@@ -1,9 +1,4 @@
-<!-- <div *ngFor="let roster of rosters$ | async">
-  <h3>{{ roster | json }} </h3>
 
-</div>
-
-<h3> {{ rosterEvent | async | json }}</h3> -->
 <app-nav></app-nav>
 
 <div class="center flex justify-around">
@@ -60,10 +55,10 @@
 
 <hr/>
 
-<div class="alert alert-info">
+<!-- <div class="alert alert-info">
   Click on a day on the view.
 <strong *ngIf="clickedDate">You clicked on this day: {{ clickedDate | date:'medium' }}</strong>
-</div>
+</div> -->
 
 
 <div [ngSwitch]="view">

@@ -2,10 +2,11 @@ import {  CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-ca
 import { CalendarEvent } from 'calendar-utils'
 
 export interface Roster{
-    title?: string;
-    date?: Date;
-    color?: Object;
-    id?: number;
-    actions?: CalendarEventAction;
-
+    title: string;
+    start: Date;
+    end:Date;
+    color: Object;
+    id: string;
+    uid: string;
+    department: string;
 }

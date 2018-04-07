@@ -10,6 +10,9 @@ import { NotifyService } from './notify.service';
 
 @Injectable()
 export class AuthService {
+  public userId;
+  public userDisplayName;
+  public userDepartment;
 
   user$: Observable<User>;
   constructor(private afAuth: AngularFireAuth,
@@ -42,18 +45,21 @@ export class AuthService {
     .catch((error) => this.handleError(error));
   }
 
-  displayName(name: string){
-    console.log(name);
-    
-    
-  }
-
   emailLogin(email: string, password: string){
     return this.afAuth.auth.signInWithEmailAndPassword(email, password)
     .then((user) => {
       this.router.navigate(['dashboard']);
+      this.loggedInUser();
       return this.updateUserData(user);
     })
+  }
+
+  loggedInUser(){
+    this.user$.subscribe(user=>{
+      this.userId = user.uid;
+      this.userDisplayName = user.displayName;
+      this.userDepartment = user.department;
+    });
   }
   
   googleLogin() {
@@ -61,9 +67,11 @@ export class AuthService {
     return this.oAuthLogin(provider);
   }
 
+  //function to handle auth requests, this case only google is used(no facbook, github ect)
   private oAuthLogin(provider) {
     return this.afAuth.auth.signInWithPopup(provider)
       .then((credential) => {
+        this.loggedInUser();
         this.router.navigate(['dashboard']);
         this.updateUserData(credential.user)
       })

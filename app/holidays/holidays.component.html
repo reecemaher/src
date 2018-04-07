@@ -1,14 +1,26 @@
+<!-- nav component -->
 <app-nav></app-nav>
-<ng-template #modalContent let-close="close">
+
+<!-- form for changing dates -->
+<ng-template #changeDates let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title">Change Date</h4>
-      </div>
-  <div>
-    <label>New Date</label>
-    <input type="date" [(ngModel)]='modalData.start'  #newStart>
-    <button class="button" (click)="updateHoliday(modalData)" (click)="close()">Save</button>
-    <button class="button" (click)="close()">Close</button>
-  </div>
+      <h4 class="modal-title">Add Department</h4>
+      <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="form">
+            <label>New Date</label>
+            <input class="input" type="date" formControlName="start">
+            <input class="input" type="date" formControlName="end">
+            <input class="input" type="hidden" formControlName="id">
+          </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="button" (click)="updateHoliday();c('close click')">Add</button>
+      <button type="button" class="button" (click)="c('Close click')">Close</button>
+    </div>
 </ng-template>
 
 <!-- <h4 > {{bookable}}</h4> -->
@@ -20,9 +32,10 @@
 </div>
 
 
-
+<!-- calendar -->
 <div class="ml3">
   <div class="w-100">
+  <!-- navigate through the calendars months -->
   <div class="center">
           <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
           <div
@@ -50,6 +63,7 @@
   </div>
 </div>
   <hr/>
+  <!-- Button to book days -->
   <div class="alert alert-info">
       Click on a day.
     <div *ngIf="clickedDate">You clicked on this day:{{ clickedDate | date:'medium' }}
@@ -59,7 +73,7 @@
   </div>
     <hr/>
 
-    
+    <!-- calendar with its event array, draggable option, day clicked functions -->
     <div id="calendarConatainer" class="fl w-100">
     <mwl-calendar-month-view
     class="pl8"
